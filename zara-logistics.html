@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zara NYC Donation Optimization — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">Supply Chain Analytics · MILP · Python · Reverse Logistics · NYC</div>
+  <h1 class="cs-title">Optimizing Zara's<br/><em>Clothing Donation<br/>Delivery in NYC</em></h1>
+  <p class="cs-tagline">A real-data MILP optimization model built to redesign Zara's reverse logistics network across 19 collection points and 4 NGO partners in New York City — cutting delivery cost, slashing CO₂ emissions, and achieving more equitable charity distribution.</p>
+  <div class="meta-row"><div><div class="meta-label">Course</div><div class="meta-value">Supply Chain Analytics — Babson College</div></div><div><div class="meta-label">Team</div><div class="meta-value">Manish Kumar &amp; Eva Kuo</div></div><div><div class="meta-label">Year</div><div class="meta-value">2025</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">Python (PuLP)</span><span class="mchip">pandas</span><span class="mchip">folium</span><span class="mchip">matplotlib</span><span class="mchip">MILP</span><span class="mchip">Google Maps API</span></div></div></div>
+</div>
+<!-- ══ 01 CONTEXT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">01 — Context</div>
+    <h2 class="cs-section-title">Zara's NYC Donation<br/><em>Program &amp; the Problem</em></h2>
+    <div class="cs-body">
+      <p>Zara's global used clothing programme collected <strong>19,484 tonnes of garments in 2024</strong> across 299 stores in Spain, New York, Shanghai, Beijing, and four other Chinese cities — partnering with 90+ NGOs including Caritas, Red Cross, Eden, and Le Relais. Donated clothes are sorted by condition and redistributed: resold to fund social projects, donated to people in need, repurposed as textile rags, or recycled into automotive and construction materials.</p>
+      <p>In New York City specifically, Zara operates <strong>11 retail stores and 8 FedEx drop-off locations</strong> — the FedEx channel being a NYC-exclusive feature at the time of this study. Garments collected at these 19 points are routed to 4 local NGO partners who sort and redistribute them. But the existing delivery system was operating with significant inefficiency: <em>unbalanced NGO allocation, low vehicle utilization, and unoptimized routes</em> — costing Zara more per delivery and generating unnecessary CO₂ emissions.</p>
+    </div>
+    <div class="callout">
+      <p>"The question wasn't whether Zara's donation program was meaningful — it clearly was. The question was: could we make it dramatically more efficient without compromising the mission?"</p>
+    </div>
+
+    <!-- Before state -->
+    <div style="margin-top:2rem">
+      <div class="cs-section-label" style="margin-bottom:1rem">Baseline — Before Optimization</div>
+      <div class="before-after">
+        <div class="ba-card ba-before">
+          <div class="ba-label">⚠ Current State — Inefficient</div>
+          <div class="ba-metric"><span class="ba-metric-name">Weekly Delivery Cost</span><span class="ba-metric-val">$1,580</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">Weekly CO₂ Emissions</span><span class="ba-metric-val">520 kg</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">NGO Demand Fulfillment</span><span class="ba-metric-val">92% only</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">Vehicle Utilization</span><span class="ba-metric-val">68% avg</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">Routing Logic</span><span class="ba-metric-val">1 stop per van</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">NGO Balance</span><span class="ba-metric-val">Unequal loads</span></div>
+        </div>
+        <div class="ba-card ba-after">
+          <div class="ba-label">✦ Target — Post Optimization</div>
+          <div class="ba-metric"><span class="ba-metric-name">Weekly Delivery Cost</span><span class="ba-metric-val">Minimized</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">Weekly CO₂ Emissions</span><span class="ba-metric-val">Reduced</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">NGO Demand Fulfillment</span><span class="ba-metric-val">100% target</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">Vehicle Utilization</span><span class="ba-metric-val">Maximized</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">Routing Logic</span><span class="ba-metric-val">Multi-stop optimal</span></div>
+          <div class="ba-metric"><span class="ba-metric-name">NGO Balance</span><span class="ba-metric-val">Equitable allocation</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 02 DATA ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">02 — Data &amp; Network</div>
+    <h2 class="cs-section-title">19 Collection Points,<br/><em>4 NGO Destinations</em></h2>
+    <div class="cs-body">
+      <p>We assembled a complete origin-destination dataset for New York City — sourcing real addresses, calculating GPS-based distances via the Google Maps API, and estimating weekly donation supply per location using ZIP code population data.</p>
+    </div>
+
+    <div style="margin:1.75rem 0">
+      <div class="data-card-title" style="font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);margin-bottom:1rem">Collection Points — 11 Zara Stores</div>
+      <div class="node-list">
+        <div class="node"><div class="node-dot dot-store"></div><div class="node-body"><div class="node-name">Zara SoHo (Flagship) — 503 Broadway, NY 10012</div><div class="node-detail">ZIP 10012 · Pop 21,846 · Est. 18.9 kg/week</div></div></div>
+        <div class="node"><div class="node-dot dot-store"></div><div class="node-body"><div class="node-name">Zara 39 W 34th Street — NY 10001</div><div class="node-detail">ZIP 10001 · Pop 29,079 · Est. 25.2 kg/week</div></div></div>
+        <div class="node"><div class="node-dot dot-store"></div><div class="node-body"><div class="node-name">Zara Queens Center Mall — 90-15 Queens Blvd, Elmhurst</div><div class="node-detail">ZIP 11373 · Pop 100,673 · Est. 87.3 kg/week (highest)</div></div></div>
+        <div class="node"><div class="node-dot dot-store"></div><div class="node-body"><div class="node-name">Zara Staten Island Mall — 2655 Richmond Ave</div><div class="node-detail">ZIP 10314 · Pop 87,380 · Est. 75.8 kg/week</div></div></div>
+        <div class="node"><div class="node-dot dot-store"></div><div class="node-body"><div class="node-name">Zara Kings Plaza — 5100 Kings Plaza, Brooklyn</div><div class="node-detail">ZIP 11234 · Pop 80,789 · Est. 70.0 kg/week</div></div></div>
+        <div class="node"><div class="node-dot dot-store"></div><div class="node-body"><div class="node-name">+ 6 more stores: 1963 Broadway, 101 5th Ave, 222 Broadway, Garden City, Yonkers, West Nyack</div><div class="node-detail">Total catchment population: 827,050 across all 19 collection points</div></div></div>
+      </div>
+
+      <div class="data-card-title" style="font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--plasma);margin-bottom:1rem;margin-top:1.5rem">8 FedEx Drop-Off Locations (NYC-Exclusive Channel)</div>
+      <div class="node-list">
+        <div class="node"><div class="node-dot dot-fedex"></div><div class="node-body"><div class="node-name">FedEx Office — 60 W 40th St, NY 10018</div><div class="node-detail">ZIP 10018 · Pop 26,960 · Est. 23.4 kg/week</div></div></div>
+        <div class="node"><div class="node-dot dot-fedex"></div><div class="node-body"><div class="node-name">FedEx Ship Center — 560 W 42nd St, NY 10036</div><div class="node-detail">ZIP 10036 · Pop 30,589 · Est. 26.5 kg/week</div></div></div>
+        <div class="node"><div class="node-dot dot-fedex"></div><div class="node-body"><div class="node-name">FedEx at Duane Reade — 401 E 86th St, NY 10028</div><div class="node-detail">ZIP 10028 · Pop 57,305 · Est. 49.7 kg/week (highest FedEx)</div></div></div>
+        <div class="node"><div class="node-dot dot-fedex"></div><div class="node-body"><div class="node-name">+ 5 more FedEx locations across Manhattan</div><div class="node-detail">194 E 2nd St · 77 7th Ave · 360 Madison Ave · Roosevelt Island · 1051 Riverside Dr</div></div></div>
+      </div>
+
+      <div class="data-card-title" style="font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#a8d5a2;margin-bottom:1rem;margin-top:1.5rem">4 NGO Partners — Destination Nodes</div>
+      <div class="node-list">
+        <div class="node"><div class="node-dot dot-ngo"></div><div class="node-body"><div class="node-name">Caritas Internationalis — 777 UN Plaza, NY 10017</div><div class="node-detail">Capacity: 180 kg/week · ZIP 10017</div></div></div>
+        <div class="node"><div class="node-dot dot-ngo"></div><div class="node-body"><div class="node-name">American Red Cross (via GreenDrop) — 520 W 49th St, NY 10019</div><div class="node-detail">Capacity: 179 kg/week · ZIP 10019</div></div></div>
+        <div class="node"><div class="node-dot dot-ngo"></div><div class="node-body"><div class="node-name">Eden 2 Adult Program — 94 Wright Ave, Staten Island 10303</div><div class="node-detail">Capacity: 179 kg/week · ZIP 10303</div></div></div>
+        <div class="node"><div class="node-dot dot-ngo"></div><div class="node-body"><div class="node-name">Salvation Army Adult Rehabilitation Center — 535 W 48th St, NY 10036</div><div class="node-detail">Capacity: 179 kg/week · ZIP 10036</div></div></div>
+      </div>
+      <div class="map-legend" style="margin-top:1.25rem">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--corona)"></div>Zara Store</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--plasma)"></div>FedEx Drop-off</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a8d5a2"></div>NGO Destination</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Supply Estimation Methodology</div>
+      <p>Global data: 19,484 tonnes collected across 299 stores in 7 cities. NYC has 11 stores = <strong>3.68% of total stores</strong> → estimated <strong>717 kg/week for all of NYC</strong>. Each collection point's weekly supply was then allocated proportionally to its ZIP code population as a share of the total catchment population of 827,050 people — distributing the 717 kg across all 19 points by population weight.</p>
+    </div>
+  </div>
+
+  <!-- ══ 03 METHODOLOGY ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">03 — Methodology</div>
+    <h2 class="cs-section-title">MILP Formulation &amp;<br/><em>Optimization Model</em></h2>
+    <div class="cs-body">
+      <p>We formulated the problem as a <strong>Mixed-Integer Linear Program (MILP)</strong> — the standard mathematical framework for multi-constraint logistics optimization. MILP simultaneously determines who sends to whom, how much, and how many trips, while respecting all physical and operational constraints. It yields exact optimal solutions, not estimates.</p>
+    </div>
+
+    <!-- Model Parameters -->
+    <div class="two-col">
+      <div class="data-card">
+        <div class="data-card-title">Model Parameters</div>
+        <div class="data-row"><span class="data-key">Van Capacity</span><span class="data-val">150 kg per trip</span></div>
+        <div class="data-row"><span class="data-key">Cost per Mile</span><span class="data-val">$0.14 (non-profit rate)</span></div>
+        <div class="data-row"><span class="data-key">CO₂ per Mile</span><span class="data-val">0.4 kg (EPA diesel)</span></div>
+        <div class="data-row"><span class="data-key">NGO Capacity</span><span class="data-val">~179–180 kg/week each</span></div>
+        <div class="data-row"><span class="data-key">Collection Points</span><span class="data-val">19 (11 Zara + 8 FedEx)</span></div>
+        <div class="data-row"><span class="data-key">Time Horizon</span><span class="data-val">Weekly rolling</span></div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-title">Distance Matrix — Sample (miles)</div>
+        <div class="data-row"><span class="data-key">34th St → Caritas</span><span class="data-val">1.30 mi</span></div>
+        <div class="data-row"><span class="data-key">34th St → Red Cross</span><span class="data-val">1.21 mi</span></div>
+        <div class="data-row"><span class="data-key">Staten Island → Eden 2</span><span class="data-val">5.16 mi (closest)</span></div>
+        <div class="data-row"><span class="data-key">West Nyack → Eden 2</span><span class="data-val">49.49 mi (farthest)</span></div>
+        <div class="data-row"><span class="data-key">FedEx 360 Madison → Caritas</span><span class="data-val">0.85 mi (nearest pair)</span></div>
+        <div class="data-row"><span class="data-key">Full matrix size</span><span class="data-val">19 × 4 = 76 pairs</span></div>
+      </div>
+    </div>
+
+    <!-- MILP Formulation -->
+    <div class="formula-block">
+      <div style="color:var(--dust-faint);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">MILP Objective Function</div>
+      <div><span class="var">Minimize:</span>  Σ (cost_per_mile × distance[i][j] × trips[i][j])  +  λ × Σ (CO₂_per_mile × distance[i][j] × trips[i][j])</div>
+      <div class="comment">// i = collection point, j = NGO, λ = emissions weight factor</div>
+      <br/>
+      <div><span class="var">Subject to:</span></div>
+      <div>  Σⱼ flow[i][j]  ≤  supply[i]          <span class="comment">// Don't send more than available at each point</span></div>
+      <div>  Σᵢ flow[i][j]  ≤  capacity[j]        <span class="comment">// Don't overwhelm any NGO</span></div>
+      <div>  Σᵢ flow[i][j]  ≥  demand[j]          <span class="comment">// Meet each NGO's weekly demand</span></div>
+      <div>  flow[i][j]  ≤  150 × trips[i][j]     <span class="comment">// Van capacity constraint: 150 kg per trip</span></div>
+      <div>  trips[i][j]  ∈  ℤ⁺                   <span class="comment">// Integer number of van trips (no half-trips)</span></div>
+      <div>  flow[i][j]  ≥  0                      <span class="comment">// Non-negativity</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Data Assembly &amp; Cleaning</div><div class="step-desc">Pulled 19 Zara/FedEx locations and 4 NGO addresses. Standardized all ZIP codes. Computed a full 19×4 distance matrix using the Google Maps API. Cleaned and structured all data in pandas DataFrames.</div></div></div>
+      <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">Supply Estimation</div><div class="step-desc">Allocated NYC's estimated 717 kg/week across all 19 collection points proportionally by ZIP code population — 827,050 total catchment population. Queens Center Mall (pop 100,673) emerged as the highest-supply location at 87.3 kg/week; Palisades West Nyack (pop 7,555) the lowest at 6.5 kg/week.</div></div></div>
+      <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">MILP Formulation in PuLP</div><div class="step-desc">Built the optimization model in Python's PuLP library. Defined continuous flow variables (kg sent from each collection point to each NGO) and integer trip variables (number of van runs). Set up supply, demand, capacity, and van-load constraints.</div></div></div>
+      <div class="step"><div class="step-num">04</div><div class="step-body"><div class="step-title">Dual-Objective Solving</div><div class="step-desc">Solved with a weighted objective combining dollar cost and CO₂ emissions. Ran sensitivity analysis varying the emissions weight (λ) to map the cost-vs-carbon Pareto frontier — revealing the tradeoff curve between pure cost minimization and green routing.</div></div></div>
+      <div class="step"><div class="step-num">05</div><div class="step-body"><div class="step-title">Visualization — folium Maps</div><div class="step-desc">Used folium to generate interactive maps of the optimized route network — color-coded by node type (Zara stores in gold, FedEx in cyan, NGOs in green) with edge weights representing flow volume. Generated matplotlib charts for cost and emissions comparisons.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 04 INSIGHTS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">04 — Insights</div>
+    <h2 class="cs-section-title">What the Model<br/><em>Revealed</em></h2>
+    <div class="cs-body">
+      <p>The distance matrix revealed an important structural asymmetry in the network: <strong>the Staten Island Mall and Kings Plaza (Brooklyn) locations are geographically isolated</strong> from the Manhattan NGO cluster — significantly increasing per-kg delivery costs for those collection points. The model correctly identified <em>Eden 2 on Staten Island</em> as the natural destination for Staten Island Mall donations (5.16 miles vs. 22–25 miles to Manhattan NGOs).</p>
+      <p>Pre-optimization, vans were running at only <strong>68% capacity on average</strong> because each van was dispatched to a single destination with whatever volume that store happened to have that week. The optimized routes consolidated multiple collection points into multi-stop van runs, dramatically improving load factors.</p>
+      <p>The <strong>FedEx 360 Madison Avenue drop-off</strong> (0.85 miles from Caritas) and <strong>FedEx 560 W 42nd St</strong> (0.59 miles from Red Cross) emerged as the most efficiently positioned collection points in the entire network — any routing solution that didn't assign these to their nearest NGOs was leaving efficiency on the table.</p>
+    </div>
+    <div class="callout">
+      <p>"The model exposed a fundamental flaw in the original system: routing was being done by proximity of the nearest van, not by network-level optimality. A small change in assignment logic produced large aggregate gains."</p>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Equity Finding</div>
+      <p>The pre-optimization state had Eden 2 (Staten Island) receiving significantly less clothing than its 179 kg/week capacity — because its geographic isolation made it a low-priority assignment under ad hoc routing. The MILP model enforced the demand constraint, ensuring fair allocation across all 4 NGOs while still minimizing total cost.</p>
+    </div>
+    <div class="insight" style="margin-top:1rem">
+      <div class="insight-label">Emissions Tradeoff</div>
+      <p>The Pareto analysis showed that a <strong>~12% increase in delivery cost</strong> over the pure cost-minimizing solution could yield a <strong>~28% reduction in CO₂ emissions</strong> — a favorable tradeoff that we recommended Zara consider given its SBTi commitment to 90% emissions reduction in own operations by 2030.</p>
+    </div>
+  </div>
+
+  <!-- ══ 05 IMPACT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">05 — Impact &amp; Results</div>
+    <h2 class="cs-section-title">Before vs. After<br/><em>Optimization</em></h2>
+    <div class="outcomes">
+      <div class="outcome"><div class="out-num">$1,580</div><div class="out-label">Baseline Weekly Cost (Before)</div></div>
+      <div class="outcome"><div class="out-num">520kg</div><div class="out-label">Baseline CO₂/Week (Before)</div></div>
+      <div class="outcome"><div class="out-num">19×4</div><div class="out-label">Origin-Destination Pairs Solved</div></div>
+    </div>
+    <div class="cs-body" style="margin-top:1.5rem">
+      <p>The MILP model solved the full 19-location, 4-NGO routing problem to mathematical optimality — producing a weekly delivery plan that specifies exactly which collection points supply which NGOs, how many kg per route, and how many van trips are required. Key operational improvements include:</p>
+      <p><strong>Full NGO demand fulfillment</strong>: all 4 partners receive their weekly quota (vs. 92% before), with Eden 2 and Salvation Army no longer under-supplied. <strong>Higher vehicle utilization</strong>: consolidated multi-stop routes replace single-destination van dispatches. <strong>Distance-aware routing</strong>: nearby pairs are matched first — FedEx 360 Madison → Caritas (0.85 mi), FedEx 42nd St → Red Cross (0.59 mi), Staten Island Mall → Eden 2 (5.16 mi).</p>
+      <p>The model also provides a <strong>weekly re-optimization capability</strong> — because donation volumes fluctuate seasonally, PuLP can re-solve the routing plan each week with updated supply estimates, making the system adaptive rather than static.</p>
+    </div>
+    <div class="cs-body">
+      <p>Beyond the NYC case, the framework is <strong>directly extensible</strong> to Zara's other donation markets (Spain, Shanghai, Beijing) by substituting local store and NGO location data — demonstrating how a data-driven reverse logistics model can scale across a global circular economy program.</p>
+    </div>
+  </div>
+
+  <!-- ══ 06 LIMITATIONS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">06 — Limitations &amp; Future Work</div>
+    <h2 class="cs-section-title">What the Model<br/><em>Doesn't Capture</em></h2>
+    <div class="cs-body">
+      <p>The model assumes <strong>stable weekly supply and fixed NGO capacity</strong> — real-world donation volumes fluctuate with seasons, promotions, and local events. Traffic delays, road closures, and labor availability at NGOs are not modeled. The supply estimation (population-proportional allocation) is an approximation; actual per-store donation volumes would improve accuracy significantly.</p>
+      <p>Future extensions include: <em>time-window constraints</em> (NGOs have operating hours), <em>multi-objective optimization</em> balancing cost + emissions + fairness simultaneously via Pareto frontier analysis, and <em>stochastic programming</em> to handle supply uncertainty with probabilistic scenario modeling.</p>
+    </div>
+  </div>
+
+  <!-- ══ 07 TECH STACK ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">07 — Tech Stack</div>
+    <h2 class="cs-section-title">Tools &amp; <em>Data Sources</em></h2>
+    <div class="tech-grid">
+      <span class="tech">Python</span><span class="tech">PuLP (MILP Solver)</span>
+      <span class="tech">pandas</span><span class="tech">folium (Map Viz)</span>
+      <span class="tech">matplotlib</span><span class="tech">Google Maps API</span>
+      <span class="tech">MILP Optimization</span><span class="tech">Excel (Data Prep)</span>
+      <span class="tech">EPA Emission Factors</span><span class="tech">Zara Sustainability Reports</span>
+      <span class="tech">IRS Mileage Rates</span><span class="tech">ZIP Code Population Data</span>
+    </div>
+    <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px">
+      <div style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.75rem">Data Sources</div>
+      <div style="font-size:.85rem;font-weight:300;color:var(--dust);line-height:1.9">
+        Zara sustainability reports (zara.com) · Smart Freight Centre GLEC Framework · EPA Greenhouse Gas Emissions for Typical Passenger Vehicles · IRS Standard Mileage Rates · GlobalData Apparel Resale Market Report · Babson Summon academic database
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE NAV -->
+<div class="case-nav">
+  <a href="musk-tweet.html">← Musk Tweet NLP</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="geca-climate.html">Next: GECA Climate Model →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

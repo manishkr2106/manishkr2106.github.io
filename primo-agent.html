@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Primo Agent — Library Chatbot — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">AI · NLP · IBM Watsonx · Prompt Engineering · Generative AI</div>
+  <h1 class="cs-title">Primo Agent —<br/><em>AI Library Chatbot</em></h1>
+  <p class="cs-tagline">A fully self-contained, single-file HTML AI chatbot for Babson College Library — powered by IBM Granite 3 8B Instruct via watsonx.ai with client-side IAM token exchange, zero backend infrastructure, and system-prompt engineering that reduced off-topic responses by ~70%.</p>
+  <div class="meta-row"><div><div class="meta-label">Context</div><div class="meta-value">Babson College Library — IBM Watsonx Project</div></div><div><div class="meta-label">Year</div><div class="meta-value">2025</div></div><div><div class="meta-label">Role</div><div class="meta-value">Solo Developer</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">IBM Watsonx.ai</span><span class="mchip">IBM Granite 3</span><span class="mchip">Watsonx Orchestrate</span><span class="mchip">HTML/JS</span><span class="mchip">IAM Auth</span></div></div></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">01 — What Is It</div>
+  <h2 class="cs-section-title">An AI Library Agent<br/><em>Built in One File</em></h2>
+  <div class="cs-body">
+    <p>Primo Agent is a <strong>fully self-contained, single-file HTML chatbot</strong> deployed for Babson College Library — powered by IBM Granite 3 8B Instruct via watsonx.ai. It enables students to search and navigate the Primo library discovery platform using natural language rather than Boolean search syntax — asking "find me peer-reviewed articles on supply chain resilience from the last 5 years" instead of constructing query strings manually.</p>
+    <p>The entire application — authentication, API communication, UI, conversation management, error handling — lives in a single HTML file. No backend server. No npm. No deployment pipeline. One file that any librarian can host by uploading it to a web page.</p>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">02 — Why We Did It</div>
+  <h2 class="cs-section-title">The Problem:<br/><em>Discovery Systems Are Hard</em></h2>
+  <div class="cs-body">
+    <p>Babson's library uses the Primo discovery platform — a powerful academic search system that requires understanding of Boolean operators, database scoping, citation filtering, and subject headings to use effectively. Students unfamiliar with these concepts abandon searches prematurely or fail to discover relevant resources buried in the catalog.</p>
+    <p>The goal was to build a conversational interface that <strong>makes library discovery feel like asking a knowledgeable friend</strong> — removing the technical barrier while preserving access to the full depth of the Primo catalog. The constraint that made this genuinely challenging: it had to work without any backend infrastructure, making it deployable by non-technical library staff.</p>
+  </div>
+  <div class="callout"><p>"The most impressive technology is the kind that disappears. A student shouldn't need to know what Boolean operators are — they should just be able to ask their question."</p></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">03 — How We Did It</div>
+  <h2 class="cs-section-title">IBM Watsonx + IAM Auth<br/><em>in Pure HTML/JS</em></h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Model Selection — IBM Granite 3 8B Instruct</div><div class="step-desc">Selected IBM Granite 3 8B Instruct for its strong instruction-following fidelity, low latency for conversational applications, and availability through IBM Cloud's watsonx.ai API. The 8B parameter size balances quality and response speed for real-time chat.</div></div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">IAM Token Exchange — Client-Side Auth</div><div class="step-desc">Implemented IBM Cloud IAM token exchange in the browser — the app exchanges an API key for a bearer token at runtime, handles token expiration, and refreshes automatically. This is architecturally complex to do client-side; the typical pattern assumes a backend handles token exchange.</div></div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">System Prompt Engineering</div><div class="step-desc">Designed a detailed system prompt grounding the model in Babson's Primo catalog structure, scoping responses to library-relevant queries, teaching it to guide users through search refinement, and preventing hallucinated resource recommendations. Prompt engineering reduced off-topic responses by ~70% without any fine-tuning.</div></div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-body"><div class="step-title">Conversational UI — Pure HTML/CSS/JS</div><div class="step-desc">Built a complete chat interface with message streaming indicators, conversation history management, error state handling, and responsive layout — all in vanilla JavaScript, zero frameworks. This constraint was intentional: zero external dependencies means zero deployment complexity.</div></div></div>
+    <div class="step"><div class="step-num">05</div><div class="step-body"><div class="step-title">Watsonx Orchestrate Integration</div><div class="step-desc">Integrated with IBM watsonx Orchestrate for tool-calling capabilities — allowing the agent to invoke structured library search actions beyond conversational response, bridging the gap between natural language interface and programmatic catalog access.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">04 — Key Findings</div>
+  <h2 class="cs-section-title">What the Build<br/><em>Revealed</em></h2>
+  <div class="cs-body">
+    <p><strong>Prompt engineering is the highest-leverage intervention in LLM deployment.</strong> A well-scoped system prompt reduced off-topic responses by ~70% compared to an unguided base model — without any fine-tuning, additional training data, or changes to the model itself. The prompt is the cheapest, fastest, and most reversible form of model customization.</p>
+    <p>Building the IAM token exchange client-side exposed a fundamental tension in enterprise AI deployment: <strong>IBM's auth architecture assumes a server-side backend</strong>. Making it work in-browser required understanding the OAuth flow at a low level and handling edge cases (token expiry mid-conversation, CORS restrictions, network failures) that a backend would normally abstract away.</p>
+  </div>
+  <div class="outcomes">
+    <div class="outcome"><div class="out-num">1</div><div class="out-label">File — Complete Deployment</div></div>
+    <div class="outcome"><div class="out-num">0</div><div class="out-label">Backend Infrastructure Required</div></div>
+    <div class="outcome"><div class="out-num">~70%</div><div class="out-label">Off-Topic Reduction via Prompting</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">05 — Business Relevance</div>
+  <h2 class="cs-section-title">Why This Matters<br/><em>in Modern Business</em></h2>
+  <div class="biz-grid">
+    <div class="biz-card"><div class="biz-icon">Enterprise AI</div><div class="biz-title">Democratizing AI Deployment</div><div class="biz-detail">Most enterprise AI deployments require DevOps teams, cloud infrastructure, and ongoing maintenance. The single-file architecture proves that AI interfaces can be deployed by non-technical users — dramatically expanding who can build and deploy AI tools in organizations.</div></div>
+    <div class="biz-card"><div class="biz-icon">Knowledge Work</div><div class="biz-title">AI-Assisted Research Navigation</div><div class="biz-detail">Law firms, consulting firms, and research institutions face the same problem as Babson's library: vast information repositories that are difficult to navigate without expertise. Conversational interfaces like Primo Agent are the future of knowledge management in professional settings.</div></div>
+    <div class="biz-card"><div class="biz-icon">EdTech</div><div class="biz-title">Personalized Academic Support</div><div class="biz-detail">AI library agents reduce the burden on reference librarians for routine discovery queries — freeing human expertise for complex research support while providing 24/7 access to the majority of patron questions that are navigational rather than advisory.</div></div>
+    <div class="biz-card"><div class="biz-icon">IBM Stack</div><div class="biz-title">Watsonx as Enterprise AI Infrastructure</div><div class="biz-detail">IBM positions watsonx.ai as the enterprise alternative to OpenAI for regulated industries (finance, healthcare, government). This project demonstrates the practical deployment pattern — IAM auth, Granite models, Orchestrate tool-calling — that IBM's enterprise sales teams present to clients.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">06 — Challenges Faced</div>
+  <h2 class="cs-section-title">Real Obstacles<br/><em>Encountered</em></h2>
+  <div class="challenge-grid">
+    <div class="challenge"><div class="challenge-icon">Challenge 1</div><div class="challenge-title">Client-Side IAM Token Exchange</div><div class="challenge-detail">IBM's IAM documentation assumes server-side implementation. Implementing token exchange in the browser required handling CORS preflight requests, managing token storage without server session state, and implementing automatic refresh logic — all without the safety net of a backend error handler.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 2</div><div class="challenge-title">Hallucination Containment</div><div class="challenge-detail">LLMs confidently recommend resources that don't exist. The system prompt had to be carefully engineered to instruct the model to guide users toward search strategies rather than citing specific resources — a subtle but critical distinction between a helpful guide and a confident fabricator.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 3</div><div class="challenge-title">Watsonx API Rate Limits and Errors</div><div class="challenge-detail">IBM's watsonx.ai API returns different error formats for rate limits, auth failures, and model errors — each requiring different recovery strategies. Implementing graceful error handling that communicates meaningful feedback to users (not raw JSON error codes) required significant defensive programming.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 4</div><div class="challenge-title">Security vs. Accessibility Tradeoff</div><div class="challenge-detail">An API key embedded in an HTML file is visible to anyone who views the source. The production solution requires a lightweight proxy server that holds the key server-side — directly contradicting the zero-backend design goal. This tension has no perfect resolution; only acceptable trade-offs.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">07 — How It Can Be Improved</div>
+  <h2 class="cs-section-title">Future<br/><em>Enhancements</em></h2>
+  <div class="improve-list">
+    <div class="improve-item"><div class="improve-num">1</div><div class="improve-body"><div class="improve-title">Lightweight Token Proxy</div><div class="improve-desc">Add a minimal serverless function (Cloudflare Worker or AWS Lambda) to handle IAM token exchange server-side — removing the API key from the browser entirely while preserving the zero-maintenance deployment model.</div></div></div>
+    <div class="improve-item"><div class="improve-num">2</div><div class="improve-body"><div class="improve-title">Live Primo Catalog Integration</div><div class="improve-desc">Connect the agent directly to the Primo API — allowing it to return actual search results, not just search strategy guidance. This transforms the agent from a navigation assistant into a fully functional AI-powered library search interface.</div></div></div>
+    <div class="improve-item"><div class="improve-num">3</div><div class="improve-body"><div class="improve-title">Usage Analytics</div><div class="improve-desc">Add privacy-preserving query logging to track what students are searching for — providing the library with insight into patron information needs that currently goes completely unobserved and unmeasured.</div></div></div>
+    <div class="improve-item"><div class="improve-num">4</div><div class="improve-body"><div class="improve-title">Multi-Modal Input</div><div class="improve-desc">Allow students to paste an article abstract or citation and ask "find more like this" — extending the interface from text queries to reference-based discovery, which is how researchers actually work.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">08 — Tech Stack</div>
+  <h2 class="cs-section-title">Tools &amp; <em>Technologies</em></h2>
+  <div class="tech-grid">
+    <span class="tech">IBM Watsonx.ai</span><span class="tech">IBM Granite 3 8B Instruct</span>
+    <span class="tech">IBM Watsonx Orchestrate</span><span class="tech">IAM Token Exchange</span>
+    <span class="tech">HTML5 / CSS3 / Vanilla JS</span><span class="tech">Fetch API</span>
+    <span class="tech">Prompt Engineering</span><span class="tech">REST API</span><span class="tech">Babson Primo Discovery</span>
+  </div>
+</div>
+
+<div class="case-nav">
+  <a href="index.html">← All Projects</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="boston-housing.html">Next: Boston Housing ML →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

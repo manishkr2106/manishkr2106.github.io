@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BabsonAI Labs — Database Design & Analytics — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">SQL · Relational DB Design · SQLite · DBeaver · OIM6301 · Programming for Business Analytics</div>
+  <h1 class="cs-title">BabsonAI Labs —<br/><em>Relational Database</em><br/>Design &amp; Analytics</h1>
+  <p class="cs-tagline">End-to-end relational database system built from scratch for a campus AI startup — spanning 4 project phases: ERD design in Lucidchart, 3NF schema in SQLite, realistic data generation via Mockaroo, DBeaver import &amp; validation, and 8 business-intelligence SQL queries answering real operational questions.</p>
+  <div class="meta-row"><div><div class="meta-label">Course</div><div class="meta-value">OIM6301: Programming for Business Analytics — Babson College</div></div><div><div class="meta-label">Year</div><div class="meta-value">2025</div></div><div><div class="meta-label">Scenario</div><div class="meta-value">Scenario A — BabsonAI Labs Campus AI Startup</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">SQLite</span><span class="mchip">DBeaver</span><span class="mchip">Lucidchart ERD</span><span class="mchip">Mockaroo</span><span class="mchip">SQL DDL/DML</span><span class="mchip">CTEs</span><span class="mchip">Window Functions</span></div></div></div>
+</div>
+<!-- ══ 01 CONTEXT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">01 — The Challenge</div>
+    <h2 class="cs-section-title">From Spreadsheets<br/><em>to a Real Database</em></h2>
+    <div class="cs-body">
+      <p>BabsonAI Labs is a Babson student-founded AI startup managing operations across <strong>spreadsheets, email threads, and chat logs</strong> — making it impossible to answer basic operational questions: Which projects are burning past budget? Who is overloaded with tasks? Where is money actually going? The assignment simulated a real transition: designing a production-ready relational database that replaces ad-hoc tracking with a queryable, trustworthy analytical foundation.</p>
+      <p>I selected Scenario A because it sits at the exact intersection of my interests — <em>AI-driven startups, data-informed operations, and relational modeling</em>. It combines technical depth (referential integrity, normalization, constraint design) with genuine business relevance (budget monitoring, workload analysis, cost control) — the same problems a consulting engagement would surface.</p>
+    </div>
+
+    <div class="scale-band">
+      <div class="scale-item"><div class="si-num">4</div><div class="si-label">Project Phases</div></div>
+      <div class="scale-item"><div class="si-num">9</div><div class="si-label">Tables, 3NF</div></div>
+      <div class="scale-item"><div class="si-num">572</div><div class="si-label">Total Records</div></div>
+      <div class="scale-item"><div class="si-num">8</div><div class="si-label">BI SQL Queries</div></div>
+      <div class="scale-item"><div class="si-num">$14.6M</div><div class="si-label">Portfolio Budget</div></div>
+    </div>
+  </div>
+
+  <!-- ══ 02 PHASE 1 — ERD ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">02 — Phase 1: ERD Design</div>
+    <h2 class="cs-section-title">Entity-Relationship<br/><em>Diagram</em></h2>
+
+    <div class="phase-block">
+      <div class="phase-header"><span class="phase-num">Phase 1</span><span class="phase-title">ERD — Lucidchart → ERD.png</span></div>
+      <div class="phase-body">The ERD was designed from the ground up in <strong>Lucidchart</strong> — not copied from a template. Starting from the "data currently collected" list in the scenario, I identified 9 core entities, mapped all primary and foreign keys, and explicitly modeled the many-to-many relationship between People and Projects as a <strong>junction table (project_members)</strong> with its own attributes (allocation_pct, role, start/end dates). Every cardinality (1-to-many, many-to-many) was decided before writing any SQL.</div>
+    </div>
+
+    <!-- 9-table schema -->
+    <div class="schema-grid">
+      <div class="table-card core">
+        <div class="tc-name">projects</div>
+        <div class="tc-badge badge-core">Core · 50 rows</div>
+        <div class="tc-fields">
+          <span class="pk">project_id PK</span><br/>
+          project_name · <span class="fk">client_id FK</span><br/>
+          category · budget (REAL)<br/>
+          status · start_date · end_date<br/>
+          <span class="fk">stage_id FK</span> · is_active
+        </div>
+      </div>
+      <div class="table-card core">
+        <div class="tc-name">people</div>
+        <div class="tc-badge badge-core">Core · 40 rows</div>
+        <div class="tc-fields">
+          <span class="pk">person_id PK</span><br/>
+          first_name · last_name<br/>
+          email · work_email <span class="ck">UNIQUE</span><br/>
+          start_date · is_active<br/>
+          weekly_capacity_hours
+        </div>
+      </div>
+      <div class="table-card core">
+        <div class="tc-name">tasks</div>
+        <div class="tc-badge badge-core">Core · 120 rows</div>
+        <div class="tc-fields">
+          <span class="pk">task_id PK</span><br/>
+          <span class="fk">project_id FK</span> · task_name<br/>
+          task_description<br/>
+          <span class="fk">assigned_to FK</span> → people<br/>
+          <span class="fk">priority_id FK</span><br/>
+          status · due_date · completed<br/>
+          completion_date · estimated_hours
+        </div>
+      </div>
+      <div class="table-card core">
+        <div class="tc-name">expenses</div>
+        <div class="tc-badge badge-core">Core · 100 rows</div>
+        <div class="tc-fields">
+          <span class="pk">expense_id PK</span><br/>
+          <span class="fk">project_id FK</span><br/>
+          expense_date · amount <span class="ck">&gt;0</span><br/>
+          <span class="fk">expense_category_id FK</span><br/>
+          notes (TEXT)
+        </div>
+      </div>
+      <div class="table-card core">
+        <div class="tc-name">clients</div>
+        <div class="tc-badge badge-core">Core · 30 rows</div>
+        <div class="tc-fields">
+          <span class="pk">client_id PK</span><br/>
+          client_name · primary_contact<br/>
+          website · is_active
+        </div>
+      </div>
+      <div class="table-card junction">
+        <div class="tc-name">project_members</div>
+        <div class="tc-badge badge-junction">Junction · 78 rows</div>
+        <div class="tc-fields">
+          <span class="pk">project_member_id PK</span><br/>
+          <span class="fk">project_id FK</span><br/>
+          <span class="fk">person_id FK</span><br/>
+          <span class="ck">UNIQUE(project_id, person_id)</span><br/>
+          allocation_pct <span class="ck">0–100</span><br/>
+          role · start_date · end_date
+        </div>
+      </div>
+      <div class="table-card lookup">
+        <div class="tc-name">priority_levels</div>
+        <div class="tc-badge badge-lookup">Lookup · 4 rows</div>
+        <div class="tc-fields">
+          Critical · High<br/>
+          Medium · Low<br/>
+          sort_order (ranking)
+        </div>
+      </div>
+      <div class="table-card lookup">
+        <div class="tc-name">project_stages</div>
+        <div class="tc-badge badge-lookup">Lookup · 7 rows</div>
+        <div class="tc-fields">
+          Planning → Design<br/>
+          → Development → Testing<br/>
+          → Deployment → Maintenance<br/>
+          → Closed
+        </div>
+      </div>
+      <div class="table-card lookup">
+        <div class="tc-name">expense_categories</div>
+        <div class="tc-badge badge-lookup">Lookup · 9 rows</div>
+        <div class="tc-fields">
+          Hardware · Software · Travel<br/>
+          Consulting · Marketing<br/>
+          Training · Supplies<br/>
+          Utilities · Other
+        </div>
+      </div>
+    </div>
+
+    <!-- FK map -->
+    <div style="margin-top:1.5rem">
+      <div style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem"><span style="display:block;width:18px;height:1px;background:var(--corona)"></span>All Foreign Key Relationships</div>
+      <div class="fk-list">
+        <div class="fk-item"><span class="fk-from">tasks.project_id</span><span class="fk-arrow">→</span><span class="fk-to">projects.project_id</span><span class="fk-rel">1-to-many</span></div>
+        <div class="fk-item"><span class="fk-from">tasks.assigned_to</span><span class="fk-arrow">→</span><span class="fk-to">people.person_id</span><span class="fk-rel">many-to-1</span></div>
+        <div class="fk-item"><span class="fk-from">tasks.priority_id</span><span class="fk-arrow">→</span><span class="fk-to">priority_levels.priority_id</span><span class="fk-rel">many-to-1</span></div>
+        <div class="fk-item"><span class="fk-from">projects.client_id</span><span class="fk-arrow">→</span><span class="fk-to">clients.client_id</span><span class="fk-rel">many-to-1</span></div>
+        <div class="fk-item"><span class="fk-from">projects.stage_id</span><span class="fk-arrow">→</span><span class="fk-to">project_stages.stage_id</span><span class="fk-rel">many-to-1</span></div>
+        <div class="fk-item"><span class="fk-from">expenses.project_id</span><span class="fk-arrow">→</span><span class="fk-to">projects.project_id</span><span class="fk-rel">1-to-many</span></div>
+        <div class="fk-item"><span class="fk-from">expenses.expense_category_id</span><span class="fk-arrow">→</span><span class="fk-to">expense_categories.expense_category_id</span><span class="fk-rel">many-to-1</span></div>
+        <div class="fk-item"><span class="fk-from">project_members.project_id</span><span class="fk-arrow">→</span><span class="fk-to">projects.project_id</span><span class="fk-rel">junction</span></div>
+        <div class="fk-item"><span class="fk-from">project_members.person_id</span><span class="fk-arrow">→</span><span class="fk-to">people.person_id</span><span class="fk-rel">junction</span></div>
+      </div>
+    </div>
+
+    <!-- Constraints -->
+    <div class="constraint-grid" style="margin-top:1.5rem">
+      <div class="constraint">
+        <div class="constraint-type">UNIQUE Constraints</div>
+        <div class="constraint-detail"><code>people.work_email</code> — no duplicate corporate identities<br/><code>project_members(project_id, person_id)</code> — no person assigned to same project twice<br/><code>priority_levels.priority_name</code> · <code>expense_categories.category_name</code></div>
+      </div>
+      <div class="constraint">
+        <div class="constraint-type">CHECK Constraints</div>
+        <div class="constraint-detail"><code>expenses.amount &gt; 0</code> — no zero or negative charges<br/><code>project_members.allocation_pct BETWEEN 0 AND 100</code> — meaningful percentages only<br/><code>tasks.estimated_hours BETWEEN 0 AND 200</code></div>
+      </div>
+      <div class="constraint">
+        <div class="constraint-type">NOT NULL</div>
+        <div class="constraint-detail">All identity fields, all name fields, all start dates, all task names, all expense dates and amounts — no ghost records possible in the schema</div>
+      </div>
+      <div class="constraint">
+        <div class="constraint-type">DEFAULT Values</div>
+        <div class="constraint-detail"><code>is_active DEFAULT TRUE</code> on people, clients, projects<br/><code>tasks.completed DEFAULT FALSE</code><br/><code>tasks.status DEFAULT 'Open'</code><br/><code>people.weekly_capacity_hours DEFAULT 40.0</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 03 PHASE 2 — DATA GEN ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">03 — Phase 2: Data Generation</div>
+    <h2 class="cs-section-title">Mockaroo —<br/><em>Realistic Test Data</em></h2>
+
+    <div class="phase-block">
+      <div class="phase-header"><span class="phase-num">Phase 2</span><span class="phase-title">Mockaroo → 9 UTF-8 CSV files</span></div>
+      <div class="phase-body">One Mockaroo schema was built per entity with field names matching the SQLite schema exactly. Data ranges were constrained realistically: budgets <strong>$38K–$495K</strong>, dates between <strong>2023-01-01 and 2025-12-31</strong>, allocation percentages 0–100, estimated task hours 0–90. Boolean flags (is_active, completed) used realistic True/False distributions. Enum fields (status, category, role) used custom lists matching the scenario. Parent tables were generated before child tables — enforcing the same dependency order as the eventual import sequence.</div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Parent Tables First (no FK dependencies)</div><div class="step-desc">Generated in order: clients → project_stages → priority_levels → expense_categories → people. All IDs in these tables start at 1 and increment — so child tables can reference valid ranges (e.g., client_id 1–30, person_id 1–40).</div></div></div>
+      <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">Child Tables Second (reference parent ID ranges)</div><div class="step-desc">projects (client_id: 1–30, stage_id: 1–7) → tasks (project_id: 1–50, assigned_to: 1–40, priority_id: 1–4) → expenses (project_id: 1–50, expense_category_id: 1–9) → project_members (project_id: 1–50, person_id: 1–40). Every FK field was constrained to the parent's exact ID range.</div></div></div>
+      <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">Data Cleaning in Excel Before Import</div><div class="step-desc">Each CSV reviewed for UTF-8 encoding, correct headers, absence of NULL primary keys. The project_members CSV required manual deduplication — Mockaroo generated duplicate (project_id, person_id) pairs that violated the UNIQUE constraint. These were caught and removed in Excel before import.</div></div></div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Final Dataset Composition</div>
+      <p>30 clients · 40 people (26 active, 14 inactive) · 50 projects across 6 categories (Data Analytics 13, Consulting 10, Marketing 8, Web Dev 7, Infrastructure 7, Mobile App 5) · 120 tasks (53 completed, 48 in progress, 32 open, 7 blocked, 7 cancelled) · 100 expenses totalling <strong>$1,289,008.71</strong> · 78 project-member assignments across 6 roles (QA Tester 17, Project Manager 16, Developer 15, Technical Lead 14, Designer 12, Business Analyst 4) · Total portfolio budget: <strong>$14,569,596.13</strong> · Avg weekly team capacity: <strong>29.8 hrs/person</strong></p>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-item"><div class="status-num s-active">15</div><div class="status-label">Active Projects</div></div>
+      <div class="status-item"><div class="status-num s-done">13</div><div class="status-label">Completed</div></div>
+      <div class="status-item"><div class="status-num s-cancel">15</div><div class="status-label">Cancelled</div></div>
+      <div class="status-item"><div class="status-num s-hold">7</div><div class="status-label">On Hold</div></div>
+    </div>
+  </div>
+
+  <!-- ══ 04 PHASE 3 — IMPLEMENTATION ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">04 — Phase 3: Database Implementation</div>
+    <h2 class="cs-section-title">SQLite Schema &amp;<br/><em>DBeaver Import</em></h2>
+
+    <div class="phase-block">
+      <div class="phase-header"><span class="phase-num">Phase 3</span><span class="phase-title">schema.sql → DBeaver → Validated Database</span></div>
+      <div class="phase-body">The full DDL was hand-written in DBeaver's SQL editor with <code>PRAGMA foreign_keys = ON;</code> at the top — enforcing referential integrity at the database engine level, not just by convention. Every <code>CREATE TABLE</code> statement was written manually, tested, and verified before CSV import began. Auto-generated DDL from AI was cross-checked line by line against the ERD before use.</div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">3.1</div><div class="step-body"><div class="step-title">SQLite Database File Created in DBeaver</div><div class="step-desc">New SQLite connection created via Database → New Database Connection → SQLite. File path set, test connection verified, PRAGMA foreign_keys = ON confirmed active for the session.</div></div></div>
+      <div class="step"><div class="step-num">3.2</div><div class="step-body"><div class="step-title">DDL Written and Executed — All 9 Tables</div><div class="step-desc">Every CREATE TABLE statement written in the SQL editor with correct SQLite types (INTEGER for IDs and booleans, REAL for money/hours, TEXT for strings and dates — SQLite has no native DATE type). All PK/FK/UNIQUE/CHECK/DEFAULT constraints included. Each table executed individually and verified in the Database Navigator before the next was created.</div></div></div>
+      <div class="step"><div class="step-num">3.3</div><div class="step-body"><div class="step-title">CSV Import — Parent-to-Child Order</div><div class="step-desc">Imported using DBeaver's Import Data wizard with manual column mapping for every table (auto-mapping rejected after it produced silent mismatches like <code>assigned_person</code> vs. <code>assigned_to</code>). Import order: clients → project_stages → priority_levels → expense_categories → people → projects → tasks → expenses → project_members. Each table verified with SELECT COUNT(*) after import.</div></div></div>
+      <div class="step"><div class="step-num">3.4</div><div class="step-body"><div class="step-title">Data Quality Validation — Zero Integrity Errors</div><div class="step-desc">Ran the full suite of quality checks: orphan FK checks (expenses → projects, tasks → projects, tasks → people, project_members → both), NULL checks on required fields, value-range checks (amount &lt;= 0, estimated_hours &lt; 0 or &gt; 200, allocation_pct &gt; 100), and aggregate sanity checks (total spend vs. budget per project, task completion rate per project). All checks returned zero violations.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 05 PHASE 4 — QUERIES ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">05 — Phase 4: Business Intelligence Queries</div>
+    <h2 class="cs-section-title">8 SQL Queries —<br/><em>Real Operational Answers</em></h2>
+    <div class="cs-body">
+      <p>Eight queries were written to answer real questions a BabsonAI Labs CFO, project manager, or team lead would ask weekly. Six address the required business questions for Scenario A; two are original queries designed to surface insights the required set doesn't cover. All use <strong>CTEs, LEFT JOINs with COALESCE for null-safe math, NULLIF for division-by-zero safety,</strong> and SQLite-specific date parsing via <code>substr()</code> — since SQLite stores dates as TEXT with no native date type.</p>
+    </div>
+
+    <!-- Q1 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q1 — Budget vs. Spend Variance</span><span class="query-badge qb-required">Required</span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which projects are over budget, and by how much? Sorted by largest overrun — triggers cost control or scope review before the situation worsens.</div>
+      <div class="query-tech">Techniques: CTE · LEFT JOIN · COALESCE · NULLIF (division-by-zero) · ROUND · ORDER BY computed column</div>
+      <div class="query-code"><span class="kw">WITH</span> spend <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> project_id, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_spend
+  <span class="kw">FROM</span> expenses <span class="kw">GROUP BY</span> project_id
+)
+<span class="kw">SELECT</span> p.project_name,
+       <span class="fn">ROUND</span>(p.budget, <span class="num">2</span>)                                        <span class="kw">AS</span> budget,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(s.total_spend, <span class="num">0</span>), <span class="num">2</span>)                    <span class="kw">AS</span> spend_to_date,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(s.total_spend, <span class="num">0</span>) - p.budget, <span class="num">2</span>)          <span class="kw">AS</span> variance_amount,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">COALESCE</span>(s.total_spend,<span class="num">0</span>) / <span class="fn">NULLIF</span>(p.budget,<span class="num">0</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_of_budget
+<span class="kw">FROM</span> projects p
+<span class="kw">LEFT JOIN</span> spend s <span class="kw">USING</span>(project_id)
+<span class="kw">ORDER BY</span> variance_amount <span class="kw">DESC</span>;</div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q2 — Workload per Person (Last 30 Days)</span><span class="query-badge qb-required">Required</span></div>
+      <div class="query-biz"><strong>Business question:</strong> For each team member, how many tasks were completed and how many are pending within the last 30 days? Enables workload rebalancing before deadlines slip.</div>
+      <div class="query-tech">Techniques: CTE with date params · conditional SUM(CASE WHEN) · substr() date parsing (SQLite TEXT dates) · LEFT JOIN · GROUP BY</div>
+      <div class="query-code"><span class="kw">WITH</span> params <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="fn">date</span>(<span class="str">'now'</span>,<span class="str">'-30 day'</span>) <span class="kw">AS</span> d30, <span class="fn">date</span>(<span class="str">'now'</span>) <span class="kw">AS</span> today
+)
+<span class="kw">SELECT</span> pe.first_name || <span class="str">' '</span> || pe.last_name        <span class="kw">AS</span> person_name,
+       <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> t.completed = <span class="num">1</span>
+         <span class="kw">AND</span> <span class="fn">date</span>(<span class="fn">substr</span>(t.completion_date,<span class="num">7</span>,<span class="num">4</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.completion_date,<span class="num">1</span>,<span class="num">2</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.completion_date,<span class="num">4</span>,<span class="num">2</span>))
+             <span class="kw">BETWEEN</span> (SELECT d30 FROM params) AND (SELECT today FROM params)
+         <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>)                        <span class="kw">AS</span> completed_30d,
+       <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> t.completed = <span class="num">0</span>
+         <span class="kw">AND</span> <span class="fn">date</span>(<span class="fn">substr</span>(t.due_date,<span class="num">7</span>,<span class="num">4</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.due_date,<span class="num">1</span>,<span class="num">2</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.due_date,<span class="num">4</span>,<span class="num">2</span>))
+             <span class="kw">BETWEEN</span> (SELECT d30 FROM params) AND (SELECT today FROM params)
+         <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>)                        <span class="kw">AS</span> pending_30d
+<span class="kw">FROM</span> people pe
+<span class="kw">LEFT JOIN</span> tasks t <span class="kw">ON</span> t.assigned_to = pe.person_id
+<span class="kw">GROUP BY</span> pe.person_id, person_name
+<span class="kw">ORDER BY</span> completed_30d <span class="kw">DESC</span>, pending_30d <span class="kw">DESC</span>;</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q3 — Portfolio Status Summary</span><span class="query-badge qb-required">Required</span></div>
+      <div class="query-biz"><strong>Business question:</strong> By project status, how many projects exist and what is the average task completion rate? Tells leadership where velocity is high vs. where projects are stalling.</div>
+      <div class="query-tech">Techniques: Nested CTEs · AVG(CASE WHEN) for completion rate · COALESCE · GROUP BY status · ORDER BY count</div>
+      <div class="query-code"><span class="kw">WITH</span> task_rate <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> project_id,
+         <span class="fn">AVG</span>(<span class="kw">CASE WHEN</span> completed = <span class="num">1</span> <span class="kw">THEN</span> <span class="num">1.0</span> <span class="kw">ELSE</span> <span class="num">0.0</span> <span class="kw">END</span>) <span class="kw">AS</span> completion_rate
+  <span class="kw">FROM</span> tasks <span class="kw">GROUP BY</span> project_id
+)
+<span class="kw">SELECT</span> p.status                                                    <span class="kw">AS</span> project_status,
+       <span class="fn">COUNT</span>(*)                                                   <span class="kw">AS</span> project_count,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="fn">COALESCE</span>(tr.completion_rate,<span class="num">0</span>)) * <span class="num">100.0</span>, <span class="num">1</span>)   <span class="kw">AS</span> avg_task_completion_pct
+<span class="kw">FROM</span> projects p
+<span class="kw">LEFT JOIN</span> task_rate tr <span class="kw">ON</span> tr.project_id = p.project_id
+<span class="kw">GROUP BY</span> p.status
+<span class="kw">ORDER BY</span> project_count <span class="kw">DESC</span>;</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q4 — Overdue Task Hot List</span><span class="query-badge qb-required">Required</span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which incomplete tasks have already passed their due date? Daily stand-up input — shows task, project, owner, and how overdue in one view for immediate action.</div>
+      <div class="query-tech">Techniques: CTE date anchor · 3-table JOIN (tasks, projects, people) · substr() date comparison · ORDER BY date ASC</div>
+      <div class="query-code"><span class="kw">WITH</span> today <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">date</span>(<span class="str">'now'</span>) <span class="kw">AS</span> d)
+<span class="kw">SELECT</span> t.task_name,
+       p.project_name,
+       pe.first_name || <span class="str">' '</span> || pe.last_name <span class="kw">AS</span> owner,
+       t.due_date,
+       <span class="fn">date</span>(<span class="fn">substr</span>(t.due_date,<span class="num">7</span>,<span class="num">4</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.due_date,<span class="num">1</span>,<span class="num">2</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.due_date,<span class="num">4</span>,<span class="num">2</span>)) <span class="kw">AS</span> due_iso
+<span class="kw">FROM</span> tasks t
+<span class="kw">JOIN</span>  projects p  <span class="kw">ON</span> p.project_id = t.project_id
+<span class="kw">LEFT JOIN</span> people pe <span class="kw">ON</span> pe.person_id = t.assigned_to
+<span class="kw">WHERE</span> t.completed = <span class="num">0</span>
+  <span class="kw">AND</span>  t.due_date  <span class="kw">IS NOT NULL</span>
+  <span class="kw">AND</span>  <span class="fn">date</span>(<span class="fn">substr</span>(t.due_date,<span class="num">7</span>,<span class="num">4</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.due_date,<span class="num">1</span>,<span class="num">2</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(t.due_date,<span class="num">4</span>,<span class="num">2</span>))
+       < (SELECT d FROM today)
+<span class="kw">ORDER BY</span> due_iso <span class="kw">ASC</span>, project_name, task_name;</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q5 — Above-Average Spend Categories</span><span class="query-badge qb-required">Required</span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which expense categories have total spend above the cross-category average? Focuses cost-reduction attention on the highest-impact categories only.</div>
+      <div class="query-tech">Techniques: Two-level CTEs · self-referencing WHERE with scalar subquery · cross-join to compare against aggregate · ORDER BY DESC</div>
+      <div class="query-code"><span class="kw">WITH</span> cat <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> ec.category_name,
+         <span class="fn">ROUND</span>(<span class="fn">SUM</span>(e.amount), <span class="num">2</span>) <span class="kw">AS</span> total_spend
+  <span class="kw">FROM</span> expenses e
+  <span class="kw">LEFT JOIN</span> expense_categories ec <span class="kw">ON</span> ec.expense_category_id = e.expense_category_id
+  <span class="kw">GROUP BY</span> ec.category_name
+),
+overall <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(total_spend) <span class="kw">AS</span> avg_spend <span class="kw">FROM</span> cat)
+<span class="kw">SELECT</span> c.category_name, c.total_spend
+<span class="kw">FROM</span> cat c, overall o
+<span class="kw">WHERE</span> c.total_spend > o.avg_spend
+<span class="kw">ORDER BY</span> c.total_spend <span class="kw">DESC</span>;</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q6 — Top 3 Projects by Task Throughput (90 days)</span><span class="query-badge qb-required">Required</span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which 3 projects completed the most tasks in the last 90 days? Highlights high-velocity teams for recognition or resource reinforcement.</div>
+      <div class="query-tech">Techniques: Triple CTE chain · ROW_NUMBER() window function · COALESCE for zero-task projects · filtered ranking with WHERE rn ≤ 3</div>
+      <div class="query-code"><span class="kw">WITH</span> params <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="fn">date</span>(<span class="str">'now'</span>,<span class="str">'-90 day'</span>) <span class="kw">AS</span> d90),
+counts <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> project_id, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> completed_90d
+  <span class="kw">FROM</span> tasks
+  <span class="kw">WHERE</span> completed = <span class="num">1</span>
+    <span class="kw">AND</span> <span class="fn">date</span>(<span class="fn">substr</span>(completion_date,<span class="num">7</span>,<span class="num">4</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(completion_date,<span class="num">1</span>,<span class="num">2</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(completion_date,<span class="num">4</span>,<span class="num">2</span>))
+        >= (SELECT d90 FROM params)
+  <span class="kw">GROUP BY</span> project_id
+),
+ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.project_name, <span class="fn">COALESCE</span>(c.completed_90d,<span class="num">0</span>) <span class="kw">AS</span> completed_90d,
+         <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="fn">COALESCE</span>(c.completed_90d,<span class="num">0</span>) <span class="kw">DESC</span>, p.project_name) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span> projects p
+  <span class="kw">LEFT JOIN</span> counts c <span class="kw">ON</span> c.project_id = p.project_id
+)
+<span class="kw">SELECT</span> project_name, completed_90d
+<span class="kw">FROM</span> ranked <span class="kw">WHERE</span> rn <= <span class="num">3</span>
+<span class="kw">ORDER BY</span> completed_90d <span class="kw">DESC</span>;</div>
+    </div>
+
+    <!-- Q7 ORIGINAL -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q7 — Overloaded Team Members (Next 7 Days)</span><span class="query-badge qb-original">Original</span></div>
+      <div class="query-biz"><strong>Business question (original):</strong> Who has more estimated hours due in the next 7 days than their weekly capacity? Proactive rebalancing before deadlines slip — not reactive after. Returns 0 rows in this dataset, which is itself a valid confirmation that no one is currently overloaded.</div>
+      <div class="query-tech">Techniques: Date window CTE · SUM of estimated_hours per person · JOIN against people.weekly_capacity_hours · WHERE overload condition · ORDER by severity</div>
+      <div class="query-code"><span class="kw">WITH</span> due_next7 <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> assigned_to <span class="kw">AS</span> person_id,
+         <span class="fn">SUM</span>(<span class="fn">COALESCE</span>(estimated_hours, <span class="num">0</span>)) <span class="kw">AS</span> est_due_next7
+  <span class="kw">FROM</span> tasks
+  <span class="kw">WHERE</span> completed = <span class="num">0</span>
+    <span class="kw">AND</span> assigned_to <span class="kw">IS NOT NULL</span>
+    <span class="kw">AND</span> <span class="fn">date</span>(<span class="fn">substr</span>(due_date,<span class="num">7</span>,<span class="num">4</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(due_date,<span class="num">1</span>,<span class="num">2</span>)||<span class="str">'-'</span>||<span class="fn">substr</span>(due_date,<span class="num">4</span>,<span class="num">2</span>))
+        <span class="kw">BETWEEN</span> <span class="fn">date</span>(<span class="str">'now'</span>) <span class="kw">AND</span> <span class="fn">date</span>(<span class="str">'now'</span>,<span class="str">'+7 day'</span>)
+  <span class="kw">GROUP BY</span> assigned_to
+)
+<span class="kw">SELECT</span> pe.first_name || <span class="str">' '</span> || pe.last_name  <span class="kw">AS</span> person_name,
+       pe.weekly_capacity_hours,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(d.est_due_next7, <span class="num">0</span>), <span class="num">2</span>)  <span class="kw">AS</span> est_due_next7,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(d.est_due_next7, <span class="num">0</span>) - pe.weekly_capacity_hours, <span class="num">2</span>) <span class="kw">AS</span> overload_hours
+<span class="kw">FROM</span> people pe
+<span class="kw">LEFT JOIN</span> due_next7 d <span class="kw">ON</span> d.person_id = pe.person_id
+<span class="kw">WHERE</span> <span class="fn">COALESCE</span>(d.est_due_next7, <span class="num">0</span>) > pe.weekly_capacity_hours
+<span class="kw">ORDER BY</span> overload_hours <span class="kw">DESC</span>, person_name;</div>
+    </div>
+
+    <!-- Q8 ORIGINAL -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q8 — Client Profitability Snapshot</span><span class="query-badge qb-original">Original</span></div>
+      <div class="query-biz"><strong>Business question (original):</strong> For each client, what is the total active project budget vs. total spend, and what is the variance %? Sorted by worst variance — surfaces unprofitable client relationships to renegotiate scope or fees. A CFO-level view that the required queries don't provide.</div>
+      <div class="query-tech">Techniques: Two parallel CTEs · triple LEFT JOIN (clients, proj, spend) · COALESCE throughout · NULLIF division guard · sorted by financial severity</div>
+      <div class="query-code"><span class="kw">WITH</span> proj <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.client_id,
+         <span class="fn">COUNT</span>(*) <span class="kw">AS</span> active_projects,
+         <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> p.is_active = <span class="num">1</span> <span class="kw">THEN</span> p.budget <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> total_budget
+  <span class="kw">FROM</span> projects p <span class="kw">GROUP BY</span> p.client_id
+),
+spend <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> p.client_id, <span class="fn">SUM</span>(e.amount) <span class="kw">AS</span> total_spend
+  <span class="kw">FROM</span> projects p
+  <span class="kw">LEFT JOIN</span> expenses e <span class="kw">ON</span> e.project_id = p.project_id
+  <span class="kw">GROUP BY</span> p.client_id
+)
+<span class="kw">SELECT</span> c.client_name,
+       <span class="fn">COALESCE</span>(pr.active_projects, <span class="num">0</span>)              <span class="kw">AS</span> active_projects,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(pr.total_budget, <span class="num">0</span>), <span class="num">2</span>)       <span class="kw">AS</span> total_budget,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(sp.total_spend, <span class="num">0</span>), <span class="num">2</span>)        <span class="kw">AS</span> total_spend,
+       <span class="fn">ROUND</span>(<span class="fn">COALESCE</span>(sp.total_spend,<span class="num">0</span>) - <span class="fn">COALESCE</span>(pr.total_budget,<span class="num">0</span>), <span class="num">2</span>) <span class="kw">AS</span> variance_amount,
+       <span class="fn">ROUND</span>(<span class="num">100.0</span> * <span class="fn">COALESCE</span>(sp.total_spend,<span class="num">0</span>) / <span class="fn">NULLIF</span>(<span class="fn">COALESCE</span>(pr.total_budget,<span class="num">0</span>),<span class="num">0</span>),<span class="num">1</span>) <span class="kw">AS</span> pct_of_budget
+<span class="kw">FROM</span> clients c
+<span class="kw">LEFT JOIN</span> proj  pr <span class="kw">ON</span> pr.client_id = c.client_id
+<span class="kw">LEFT JOIN</span> spend sp <span class="kw">ON</span> sp.client_id = c.client_id
+<span class="kw">ORDER BY</span> variance_amount <span class="kw">DESC</span>, c.client_name;</div>
+    </div>
+  </div>
+
+  <!-- ══ 06 REFLECTION ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">06 — Reflection</div>
+    <h2 class="cs-section-title">What I Learned —<br/><em>Honest Assessment</em></h2>
+    <div class="cs-body">
+      <p>The most important lesson wasn't technical — it was architectural. <strong>Designing the ERD before writing a single line of SQL forced clarity</strong> about what the business actually needs to track vs. what's easy to store. Every foreign key encodes a business rule. Every constraint is a policy decision. The discipline of deciding cardinality on paper before touching code produces schemas that answer business questions — not just schemas that store data.</p>
+      <p>The import sequence revealed something deeper: <em>the import order and the ERD dependency graph are the same artifact viewed differently</em>. A schema with 9 tables has exactly one valid import order. Understanding that conceptually — before DBeaver enforces it with errors — is the difference between a database designer and someone following instructions.</p>
+      <p>Query 7 returning zero rows was initially surprising. Then it was the most instructive result in the project. <strong>A query that confirms no one is overloaded is as valuable as one that finds overloads</strong> — SQL is a verification mechanism, not just a retrieval engine. The real skill is trusting a well-written query even when the result is "nothing wrong."</p>
+    </div>
+
+    <!-- AI usage -->
+    <div style="margin-top:2rem">
+      <div style="font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1rem"><span style="display:block;width:18px;height:1px;background:var(--corona)"></span>AI Usage — What Helped vs. What Broke</div>
+
+      <div class="ai-row">
+        <div class="ai-icon ai-good">Helped</div>
+        <div class="ai-body">
+          <div class="ai-title">Schema generation from ERD</div>
+          <div class="ai-detail">Prompt: "Generate full SQLite schema from my ERD with foreign keys." Used to cross-check my design — then every line was manually reviewed against the ERD for correctness before execution.</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-icon ai-good">Helped</div>
+        <div class="ai-body">
+          <div class="ai-title">Complex query structuring with CTEs</div>
+          <div class="ai-detail">Prompt: "Help me structure a query that compares each person's upcoming task hours against their weekly capacity." Produced a useful CTE skeleton that I adapted with correct SQLite date parsing logic.</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-icon ai-bad">Fixed</div>
+        <div class="ai-body">
+          <div class="ai-title">MySQL syntax in SQLite context — <code>AUTO_INCREMENT</code> and <code>VARCHAR(255)</code></div>
+          <div class="ai-detail">AI repeatedly suggested MySQL-specific syntax. SQLite uses <code>AUTOINCREMENT</code> (no underscore) and <code>TEXT</code> (not VARCHAR). Caught by testing each CREATE TABLE in DBeaver before the next was written. Fixed across the entire schema.</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-icon ai-bad">Fixed</div>
+        <div class="ai-body">
+          <div class="ai-title">Wrong import order recommendation</div>
+          <div class="ai-detail">AI suggested a random re-ordering when FK constraint failures appeared during import — which made the problem worse. The correct fix (strict parent-to-child order matching the ERD dependency graph) was discovered by reasoning from first principles, not from AI advice.</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-icon ai-bad">Fixed</div>
+        <div class="ai-body">
+          <div class="ai-title">Auto-column mapping in DBeaver</div>
+          <div class="ai-detail">AI suggested allowing DBeaver to auto-map CSV columns during import. Auto-mapping silently mismatched <code>assigned_person</code> → <code>assigned_to</code> and similar field name variants. Fixed by manually verifying every source-to-target column mapping in the import wizard before starting each import.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:2rem">
+      <p>"AI accelerated the work — but every AI suggestion was treated as a first draft, not a final answer. The skill is knowing which output to trust, which to fix, and which to reject entirely."</p>
+    </div>
+  </div>
+
+  <!-- ══ 07 RESULTS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">07 — Results</div>
+    <h2 class="cs-section-title">Outcomes</h2>
+    <div class="outcomes">
+      <div class="outcome"><div class="out-num">9</div><div class="out-label">Tables, 3NF — Zero Violations</div></div>
+      <div class="outcome"><div class="out-num">572</div><div class="out-label">Records, Clean Import</div></div>
+      <div class="outcome"><div class="out-num">8</div><div class="out-label">BI Queries — CTEs, Joins, Windows</div></div>
+    </div>
+    <div class="cs-body" style="margin-top:1.5rem">
+      <p>Delivered a production-ready SQLite database with <strong>zero orphan records, zero constraint violations, and zero referential integrity failures</strong> across all 9 tables — verified through systematic orphan-key checks, null-data audits, unrealistic-value filters, and aggregate sanity checks. The 8 business queries collectively answer every critical operational question for a startup operations team: budget overruns, individual workload, portfolio status, overdue tasks, cost concentration, project velocity, capacity risk, and client profitability — all in a single, queryable SQLite database that takes a startup from spreadsheets to structured analytics.</p>
+    </div>
+  </div>
+
+  <!-- ══ 08 STACK ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">08 — Tech Stack</div>
+    <h2 class="cs-section-title">Tools &amp; <em>Technologies</em></h2>
+    <div class="tech-grid">
+      <span class="tech">SQLite</span><span class="tech">DBeaver</span><span class="tech">Lucidchart (ERD)</span>
+      <span class="tech">Mockaroo (Data Gen)</span><span class="tech">SQL DDL</span><span class="tech">SQL DML</span>
+      <span class="tech">CTEs</span><span class="tech">ROW_NUMBER() Window Fn</span>
+      <span class="tech">PRAGMA foreign_keys</span><span class="tech">3NF Normalization</span>
+      <span class="tech">Excel (Data Cleaning)</span><span class="tech">Python pandas (QA)</span>
+    </div>
+  </div>
+
+  <!-- CASE NAV -->
+<div class="case-nav">
+  <a href="forecasting.html">← Economic Forecasting</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="python-project.html">Next: Python Analytics Pipeline →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Economic & Financial Forecasting — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">Time Series · ARIMA · Macroeconomics · R · AIC/BIC</div>
+  <h1 class="cs-title">Economic &amp; Financial<br/><em>Forecasting Models</em></h1>
+  <p class="cs-tagline">Applied ARIMA time series pipeline for macroeconomic forecasting — FX rates, inflation, and capital flows. AIC vs. BIC model selection, Ljung-Box diagnostic testing, and multi-horizon prediction with uncertainty bands. Reveals where statistical models systematically fail and why that matters for business decisions.</p>
+  <div class="meta-row"><div><div class="meta-label">Context</div><div class="meta-value">Economic &amp; Financial Forecasting — MBA Course</div></div><div><div class="meta-label">Year</div><div class="meta-value">2025</div></div><div><div class="meta-label">Role</div><div class="meta-value">Solo Analyst</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">R</span><span class="mchip">ARIMA</span><span class="mchip">AIC/BIC</span><span class="mchip">ACF/PACF</span><span class="mchip">Ljung-Box</span><span class="mchip">ggplot2</span></div></div></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">01 — What Is It</div>
+  <h2 class="cs-section-title">ARIMA Time Series<br/><em>Forecasting Models</em></h2>
+  <div class="cs-body">
+    <p>A systematic application of <strong>ARIMA (AutoRegressive Integrated Moving Average) models</strong> to real macroeconomic time series — forecasting foreign exchange rates, inflation dynamics, and capital flow patterns across international markets. The project uses AIC/BIC information criteria for principled model selection and evaluates forecast accuracy across multiple time horizons.</p>
+    <p>Beyond building models, the project confronts a fundamental question in applied econometrics: <em>what can purely statistical time series models actually tell us about macroeconomic dynamics, and where do they inevitably fail?</em> Understanding the answer makes you a better analyst in any data-driven finance, consulting, or strategy role.</p>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">02 — Why We Did It</div>
+  <h2 class="cs-section-title">The Goal: Disciplined<br/><em>Quantitative Forecasting</em></h2>
+  <div class="cs-body">
+    <p>Every CFO, treasury manager, supply chain planner, and macroeconomic analyst needs to forecast — FX rates for hedging, inflation for pricing, sales trends for inventory. The skill being developed here is not just running ARIMA models but <strong>knowing which model to specify, why, and what the output actually means</strong> — and crucially, where it should not be trusted.</p>
+    <p>The dual challenge: selecting the right model using AIC/BIC information criteria, and interpreting forecasts in the context of economic fundamentals — not just as statistical outputs divorced from the real world that generated them.</p>
+  </div>
+  <div class="callout"><p>"A good forecast is not just a number. It is a structured argument about what you believe, what you are uncertain about, and exactly why the model will fail at the boundaries of its assumptions."</p></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">03 — How We Did It</div>
+  <h2 class="cs-section-title">Systematic ARIMA<br/><em>Pipeline in R</em></h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Stationarity Testing — ADF &amp; KPSS</div><div class="step-desc">Applied Augmented Dickey-Fuller tests for unit roots and KPSS tests for stationarity. Differenced non-stationary series appropriately — first differences for I(1) processes — and log-transformed where variance needed stabilizing.</div></div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">Model Identification — ACF/PACF Analysis</div><div class="step-desc">Analyzed autocorrelation (ACF) and partial autocorrelation (PACF) functions to identify candidate AR(p) and MA(q) orders. Constructed a grid of ARIMA(p,d,q) specifications for systematic competitive evaluation.</div></div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">Model Selection — AIC vs. BIC</div><div class="step-desc">Evaluated all candidate models using both Akaike (AIC) and Bayesian (BIC) information criteria. AIC favors forecast fit; BIC penalizes complexity more strongly — compared both to understand the parsimony-accuracy tradeoff.</div></div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-body"><div class="step-title">Diagnostic Checking — Ljung-Box Test</div><div class="step-desc">Verified model residuals for white noise using Ljung-Box tests at multiple lags. Checked for heteroscedasticity (ARCH effects) and normality of residuals. Re-specified models where diagnostics failed.</div></div></div>
+    <div class="step"><div class="step-num">05</div><div class="step-body"><div class="step-title">Forecast Generation with Uncertainty Bands</div><div class="step-desc">Generated point forecasts with 80% and 95% prediction intervals. Contextualized forecast paths against monetary policy expectations, inflation dynamics, and capital flow fundamentals — not treating outputs as standalone statistical artifacts.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">04 — Key Findings</div>
+  <h2 class="cs-section-title">What the Models<br/><em>Revealed</em></h2>
+  <div class="cs-body">
+    <p><strong>AIC and BIC frequently disagreed.</strong> AIC preferred higher-order models with more lags capturing nuanced autocorrelation patterns; BIC selected more parsimonious specifications. Out-of-sample validation showed AIC-selected models modestly outperformed at short horizons (1–3 months), while BIC models were more reliable at 6–12 month horizons — a finding with direct implications for which criterion to use depending on the planning horizon.</p>
+    <p>FX forecasting proved the most humbling exercise: <strong>ARIMA models captured momentum well but systematically missed regime changes</strong> driven by central bank policy shifts. This is not a model failure — it is a fundamental limitation of extrapolating historical patterns when the data-generating process can discontinuously change. Recognizing where models fail is at least as important as knowing how to build them.</p>
+  </div>
+  <div class="outcomes">
+    <div class="outcome"><div class="out-num">5+</div><div class="out-label">Economic Series Forecasted</div></div>
+    <div class="outcome"><div class="out-num">AIC/BIC</div><div class="out-label">Dual Model Selection Criteria</div></div>
+    <div class="outcome"><div class="out-num">3</div><div class="out-label">Forecast Horizons Tested</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">05 — Business Relevance</div>
+  <h2 class="cs-section-title">Why This Matters<br/><em>in Modern Business</em></h2>
+  <div class="biz-grid">
+    <div class="biz-card"><div class="biz-icon">Treasury</div><div class="biz-title">FX Risk Management</div><div class="biz-detail">Multinationals with revenue in multiple currencies use ARIMA-family models for short-term FX forecasting to determine optimal hedging ratios. A 1% improvement in forecast accuracy on a $1B FX exposure generates $10M in hedging savings.</div></div>
+    <div class="biz-card"><div class="biz-icon">Supply Chain</div><div class="biz-title">Demand Forecasting</div><div class="biz-detail">The same ARIMA framework applied to sales time series powers inventory optimization systems at Amazon, Walmart, and every major retailer. Forecast accuracy directly determines how much working capital is tied up in inventory buffers.</div></div>
+    <div class="biz-card"><div class="biz-icon">Finance</div><div class="biz-title">Macro Trading Signals</div><div class="biz-detail">Systematic macro hedge funds use time series models as one input to trading signals on rates, FX, and commodities. Understanding their assumptions and failure modes is essential for knowing when to trust and when to override them.</div></div>
+    <div class="biz-card"><div class="biz-icon">Consulting</div><div class="biz-title">Market Entry Timing</div><div class="biz-detail">Consultants use macroeconomic forecasts to advise clients on market entry timing, capital deployment, and operational hedging. The ability to construct and critique a forecast model is a core analytical skill in top-tier strategy consulting.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">06 — Challenges Faced</div>
+  <h2 class="cs-section-title">Real Obstacles<br/><em>Encountered</em></h2>
+  <div class="challenge-grid">
+    <div class="challenge"><div class="challenge-icon">Challenge 1</div><div class="challenge-title">Structural Breaks in FX Data</div><div class="challenge-detail">Central bank interventions, COVID-19 shocks, and geopolitical events create structural breaks in FX series — points where the historical statistical relationships no longer hold. ARIMA has no mechanism to detect or model these discontinuities, requiring hybrid approaches.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 2</div><div class="challenge-title">AIC vs. BIC Model Disagreement</div><div class="challenge-detail">When AIC and BIC select different models, there is no objective tiebreaker — the right choice depends on the use case (short vs. long horizon), the cost of over-fitting vs. under-fitting, and domain knowledge. This ambiguity is a feature of honest model selection, not a bug.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 3</div><div class="challenge-title">Prediction Interval Communication</div><div class="challenge-detail">Stakeholders consistently interpret point forecasts as certainties and ignore confidence intervals. Communicating that "our 95% interval for the EUR/USD rate in 6 months spans $0.12" — a genuinely uncertain and useful finding — without losing the audience requires careful visualization design.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 4</div><div class="challenge-title">Model Validation on Short Series</div><div class="challenge-detail">Macroeconomic data with monthly frequency gives only 10–15 out-of-sample observations for a 1–2 year holdout period — statistically insufficient for robust model selection. This is an inherent limitation of macroeconomic forecasting that cannot be engineered away.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">07 — How It Can Be Improved</div>
+  <h2 class="cs-section-title">Future<br/><em>Enhancements</em></h2>
+  <div class="improve-list">
+    <div class="improve-item"><div class="improve-num">1</div><div class="improve-body"><div class="improve-title">GARCH for Volatility Modeling</div><div class="improve-desc">Add GARCH (Generalized Autoregressive Conditional Heteroscedasticity) models to explicitly forecast FX volatility — critical for options pricing and dynamic hedging strategies where variance, not just the mean, matters.</div></div></div>
+    <div class="improve-item"><div class="improve-num">2</div><div class="improve-body"><div class="improve-title">VAR for Multivariate Dynamics</div><div class="improve-desc">Replace univariate ARIMA with Vector Autoregression (VAR) to model interactions between FX rates, inflation, and capital flows simultaneously — capturing cross-series feedback that univariate models inherently miss.</div></div></div>
+    <div class="improve-item"><div class="improve-num">3</div><div class="improve-body"><div class="improve-title">Bayesian Model Averaging</div><div class="improve-desc">Instead of selecting a single best model, compute a weighted average of forecasts across the model space weighted by posterior model probabilities — reducing the model uncertainty that AIC/BIC selection silently discards.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">08 — Tech Stack</div>
+  <h2 class="cs-section-title">Tools</h2>
+  <div class="tech-grid">
+    <span class="tech">R</span><span class="tech">forecast package</span><span class="tech">tseries</span>
+    <span class="tech">ARIMA</span><span class="tech">AIC / BIC</span><span class="tech">Ljung-Box Test</span>
+    <span class="tech">ADF / KPSS Tests</span><span class="tech">ACF / PACF</span><span class="tech">ggplot2</span>
+    <span class="tech">Prediction Intervals</span><span class="tech">Out-of-Sample Validation</span>
+  </div>
+</div>
+
+<div class="case-nav">
+  <a href="rentsmart.html">← RentSmart Dashboard</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="db-project.html">Next: BabsonAI Labs DB →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

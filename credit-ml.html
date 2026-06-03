@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Credit Default Prediction — 6-Model ML Pipeline — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">Machine Learning · Credit Risk · R · Kaggle · Neural Networks · Stacking · Ensemble Learning</div>
+  <h1 class="cs-title">Credit Default<br/><em>Prediction</em> —<br/>6-Model ML Pipeline</h1>
+  <p class="cs-tagline">Full end-to-end machine learning pipeline on 150,000 Kaggle borrower records — rigorous data cleaning, class-weighted Logistic Regression, CART, and Neural Network models, plus three stacking ensemble variants. Neural Network achieved 77.8% sensitivity and 0.86 AUC. Class weighting was the single most impactful decision: transforming LR sensitivity from 4% to 74.4%.</p>
+  <div class="meta-row"><div><div class="meta-label">Course</div><div class="meta-value">Machine Learning Methods for Business — Babson College</div></div><div><div class="meta-label">Dataset</div><div class="meta-value">Give Me Some Credit — Kaggle (150,000 borrowers)</div></div><div><div class="meta-label">Team</div><div class="meta-value">Group 26 · Phase 0, 1 &amp; 2</div></div><div><div class="meta-label">Year</div><div class="meta-value">2026</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">R</span><span class="mchip">glm() LR</span><span class="mchip">rpart CART</span><span class="mchip">nnet NN</span><span class="mchip">mice</span><span class="mchip">caret</span><span class="mchip">Stacking Ensemble</span><span class="mchip">AUC-ROC</span></div></div></div>
+</div>
+<!-- ══ 01 PROBLEM ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">01 — The Problem</div>
+    <h2 class="cs-section-title">Credit Risk Is a<br/><em>Sensitivity Problem</em></h2>
+    <div class="cs-body">
+      <p>Every loan approval is a prediction. The "Give Me Some Credit" Kaggle dataset gives us 150,000 real borrower records with a binary target: did they experience serious financial distress (90+ days delinquent) within the next two years? The business stakes are asymmetric — a <strong>false negative</strong> (approving a future defaulter) means real cash lost; a <strong>false positive</strong> (rejecting a good borrower) means lost revenue but no direct loss. This drives every modeling decision: <em>sensitivity is the metric that maps to dollars.</em></p>
+      <p>The hardest problem: <strong>only 6.68% of borrowers defaulted</strong> — a 14:1 class imbalance. A model predicting everyone as safe scores 93.25% accuracy while catching 0% of defaulters. Accuracy is worse than useless here — it actively misleads. AUC-ROC and Sensitivity are the real KPIs.</p>
+    </div>
+
+    <div class="scale-band">
+      <div class="scale-item"><div class="si-num">150K</div><div class="si-label">Borrower Records</div></div>
+      <div class="scale-item"><div class="si-num">6</div><div class="si-label">Models Built</div></div>
+      <div class="scale-item"><div class="si-num">14:1</div><div class="si-label">Class Imbalance</div></div>
+      <div class="scale-item"><div class="si-num">77.8%</div><div class="si-label">Best Sensitivity (NN)</div></div>
+      <div class="scale-item"><div class="si-num">0.86</div><div class="si-label">Best AUC (NN)</div></div>
+    </div>
+
+    <div class="callout">
+      <p>"Without class weighting: LR sensitivity = 4%. With 1:14 class weighting: LR sensitivity = 74.4%. A single modeling decision — telling the model that missing a defaulter is 14× more costly than a false alarm — transformed the entire project."</p>
+    </div>
+  </div>
+
+  <!-- ══ 02 CLEANING ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">02 — Data Cleaning (Phase 2)</div>
+    <h2 class="cs-section-title">10-Step Cleaning<br/><em>Pipeline in R</em></h2>
+    <div class="cs-body">
+      <p>Phase 2 replaced the minimal Phase 1 cleaning with a comprehensive 10-step pipeline — addressing every problematic column with a documented strategy, trade-off, and verification check. Three imputation methods were tested (mean, sample/bootstrap, CART via <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">mice</code>) and found to produce virtually identical model performance (AUC range: 0.85–0.86, sensitivity difference &lt;1%). Mean imputation was selected for simplicity and reproducibility.</p>
+    </div>
+
+    <table class="clean-table">
+      <tr><th>Column</th><th>Problem Found</th><th>Strategy Applied</th><th>Trade-off</th></tr>
+      <tr><td class="col-name">MonthlyIncome</td><td>19.8% missing (29,731 rows)</td><td class="strat">mice mean imputation</td><td>Simple; slightly reduces variance</td></tr>
+      <tr><td class="col-name">NumberOfDependents</td><td>2.6% missing (3,924 rows)</td><td class="strat">Mode imputation (value = 0)</td><td>Preserves distribution; fast</td></tr>
+      <tr><td class="col-name">age</td><td>1 row where age = 0 (invalid)</td><td class="strat">Set to NA → mean imputed</td><td>Correct fix; negligible impact</td></tr>
+      <tr><td class="col-name">3 late payment columns</td><td>Error codes 96 and 98 present</td><td class="strat">Values ≥ 90 set to NA → imputed</td><td>Removes bad codes; minor info loss</td></tr>
+      <tr><td class="col-name">RevolvingUtilization</td><td>3,321 values above 1.0 (should be 0–1 ratio)</td><td class="strat">Capped at 1.0</td><td>Correct domain fix; extreme signal compressed</td></tr>
+      <tr><td class="col-name">DebtRatio</td><td>Max = 329,664 (extreme outliers)</td><td class="strat">Capped at 99th percentile (4,979)</td><td>Reduces distortion; threshold partly arbitrary</td></tr>
+      <tr><td class="col-name">MonthlyIncome</td><td>Max = $3,008,750 (outliers)</td><td class="strat">Capped at 99th percentile ($25,000)</td><td>Stabilizes model; high earners compressed</td></tr>
+      <tr><td class="col-name">NumberOfDependents</td><td>Max = 20 (implausible)</td><td class="strat">Capped at 10</td><td>Reasonable domain boundary</td></tr>
+      <tr><td class="col-name">MonthlyIncome, DebtRatio</td><td>Heavily right-skewed distributions</td><td class="strat"><code>log1p()</code> transformation → new columns added</td><td>Helps LR &amp; NN; no effect on trees</td></tr>
+      <tr><td class="col-name">All numeric variables</td><td>Different scales (income in $, utilization 0–1)</td><td class="strat">caret <code>preProcess("center","scale")</code></td><td>Critical for NN convergence; neutral for trees</td></tr>
+    </table>
+
+    <div class="code-block"><span class="cm"># CLEANING 1: Error codes in late payment columns (96, 98 = data artifacts)</span>
+df$NumberOfTime30.59DaysPastDueNotWorse[df$NumberOfTime30.59DaysPastDueNotWorse >= <span class="num">90</span>] = <span class="fn">NA</span>
+df$NumberOfTime60.89DaysPastDueNotWorse[df$NumberOfTime60.89DaysPastDueNotWorse >= <span class="num">90</span>] = <span class="fn">NA</span>
+df$NumberOfTimes90DaysLate[df$NumberOfTimes90DaysLate >= <span class="num">90</span>] = <span class="fn">NA</span>
+
+<span class="cm"># CLEANING 2: Cap RevolvingUtilization at 1.0 (it is a ratio — cannot exceed 100%)</span>
+df$RevolvingUtilizationOfUnsecuredLines[df$RevolvingUtilizationOfUnsecuredLines > <span class="num">1</span>] = <span class="num">1</span>
+
+<span class="cm"># CLEANING 3-4: Cap outliers at 99th percentile</span>
+debt_cap   = <span class="fn">quantile</span>(df$DebtRatio,     <span class="num">0.99</span>, na.rm = <span class="fn">TRUE</span>)  <span class="cm"># → 4,979</span>
+income_cap = <span class="fn">quantile</span>(df$MonthlyIncome, <span class="num">0.99</span>, na.rm = <span class="fn">TRUE</span>)  <span class="cm"># → $25,000</span>
+df$DebtRatio[df$DebtRatio > debt_cap]                       = debt_cap
+df$MonthlyIncome[df$MonthlyIncome > income_cap & !<span class="fn">is.na</span>(df$MonthlyIncome)] = income_cap
+
+<span class="cm"># CLEANING 5: Cap implausible dependents</span>
+df$NumberOfDependents[df$NumberOfDependents > <span class="num">10</span> & !<span class="fn">is.na</span>(df$NumberOfDependents)] = <span class="num">10</span>
+
+<span class="cm"># CLEANING 6: Log-transform skewed variables (add as new columns)</span>
+df$MonthlyIncome_log = <span class="fn">log1p</span>(df$MonthlyIncome)
+df$DebtRatio_log     = <span class="fn">log1p</span>(df$DebtRatio)
+
+<span class="cm"># IMPUTATION: Mean via mice (tested vs. sample and CART — all produce AUC 0.85–0.86)</span>
+impute_mean = <span class="fn">mice</span>(df, m=<span class="num">1</span>, method=<span class="str">'mean'</span>)
+df = <span class="fn">complete</span>(impute_mean)
+
+<span class="cm"># STANDARDIZATION: Essential for Neural Network convergence</span>
+standardizer = <span class="fn">preProcess</span>(df, method = c(<span class="str">"center"</span>, <span class="str">"scale"</span>))
+df = <span class="fn">predict</span>(standardizer, df)
+
+<span class="cm"># CLASS WEIGHTING: Tell models a missed defaulter = 14× more costly</span>
+class_weights = <span class="fn">ifelse</span>(training$SeriousDlqin2yrs == <span class="str">"1"</span>, <span class="num">14</span>, <span class="num">1</span>)</div>
+
+    <div class="insight">
+      <div class="insight-label">Impact of Cleaning + Class Weighting on LR</div>
+      <p>Phase 1 LR (minimal cleaning, no class weights): Sensitivity = <strong>4%</strong>, AUC = 0.69. Phase 2 LR (full cleaning + 1:14 weights): Sensitivity = <strong>74.4%</strong>, AUC = <strong>0.85</strong>. The dominant factor was class weighting — it fundamentally changed what the model optimized for. Comprehensive data cleaning contributed incremental improvements to overall discrimination quality on top of that foundation.</p>
+    </div>
+  </div>
+
+  <!-- ══ 03 MODELS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">03 — Three Base Models</div>
+    <h2 class="cs-section-title">LR · CART · Neural Network —<br/><em>All Class-Weighted 1:14</em></h2>
+    <div class="cs-body">
+      <p>All three base models were trained on the same 90,000-record training set with identical preprocessing (cleaned, standardized, 1:14 class weights) and evaluated on the same 60,000-record test set at a 0.5 cutoff threshold — ensuring a fair, controlled comparison.</p>
+    </div>
+
+    <div class="model-grid">
+      <!-- LR -->
+      <div class="model-card">
+        <div class="mc-type">Model 1</div>
+        <div class="mc-name">Logistic Regression</div>
+        <div class="mc-metric"><span class="mm-k">Accuracy</span><span class="mm-v plasma">79.6%</span></div>
+        <div class="mc-metric"><span class="mm-k">Sensitivity</span><span class="mm-v plasma">74.4%</span></div>
+        <div class="mc-metric"><span class="mm-k">Specificity</span><span class="mm-v plasma">80.0%</span></div>
+        <div class="mc-metric"><span class="mm-k">AUC</span><span class="mm-v plasma">0.85</span></div>
+        <div class="mc-metric"><span class="mm-k">Defaulters caught</span><span class="mm-v plasma">3,012 / 4,050</span></div>
+        <div class="mc-metric"><span class="mm-k">Missed defaulters</span><span class="mm-v red">1,038</span></div>
+      </div>
+      <!-- CART -->
+      <div class="model-card">
+        <div class="mc-type">Model 2</div>
+        <div class="mc-name">Classification Tree (CART)</div>
+        <div class="mc-metric"><span class="mm-k">Accuracy</span><span class="mm-v corona">93.6% ★</span></div>
+        <div class="mc-metric"><span class="mm-k">Sensitivity</span><span class="mm-v red">19%</span></div>
+        <div class="mc-metric"><span class="mm-k">Specificity</span><span class="mm-v corona">99% ★</span></div>
+        <div class="mc-metric"><span class="mm-k">AUC</span><span class="mm-v red">0.79 (lowest)</span></div>
+        <div class="mc-metric"><span class="mm-k">Defaulters caught</span><span class="mm-v red">768 / 4,050</span></div>
+        <div class="mc-metric"><span class="mm-k">Missed defaulters</span><span class="mm-v red">3,282</span></div>
+      </div>
+      <!-- NN -->
+      <div class="model-card best winner-tag">
+        <div class="mc-type">Model 3 — New in Phase 2</div>
+        <div class="mc-name">Neural Network (nnet)</div>
+        <div class="mc-metric"><span class="mm-k">Accuracy</span><span class="mm-v td-good">78.6%</span></div>
+        <div class="mc-metric"><span class="mm-k">Sensitivity</span><span class="mm-v td-good">77.8% ★ Best</span></div>
+        <div class="mc-metric"><span class="mm-k">Specificity</span><span class="mm-v td-good">78.6%</span></div>
+        <div class="mc-metric"><span class="mm-k">AUC</span><span class="mm-v td-good">0.86 ★ Best</span></div>
+        <div class="mc-metric"><span class="mm-k">Defaulters caught</span><span class="mm-v td-good">3,149 / 4,050</span></div>
+        <div class="mc-metric"><span class="mm-k">Missed defaulters</span><span class="mm-v td-good">901 (fewest)</span></div>
+      </div>
+    </div>
+
+    <!-- NN architecture -->
+    <div class="cs-body">
+      <p>The Neural Network was implemented with <strong>13 input nodes → 4 hidden nodes → 1 output node</strong> — 61 total learned weight parameters. All 13 standardized variables serve as inputs. The 4 hidden nodes detect combinations of risk factors that no single variable captures alone. H2 and H3 carry the strongest weights into the output node. The strongest input signals come from <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">NumberOfTimes90DaysLate</code>, <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">RevolvingUtilization</code>, and <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">NumberOfTime60-89DaysPastDue</code> — consistent with CART's variable importance ranking.</p>
+      <p>Why does NN outperform LR despite using the same inputs and class weights? <strong>Non-linear interaction detection.</strong> A borrower with both high credit utilization and serious prior delinquency carries dramatically higher risk than either factor alone would suggest linearly. The NN's hidden layer learns these multiplicative risk combinations automatically — LR requires manual engineering of interaction terms to achieve the same effect.</p>
+    </div>
+
+    <!-- CART variable importance -->
+    <div style="margin-top:1.75rem">
+      <div style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);margin-bottom:1rem">CART Variable Importance — Past Behavior Dominates 3×</div>
+      <div class="importance-bar">
+        <div class="ib-row"><span class="ib-name">NumberOfTimes90DaysLate</span><div class="ib-track"><div class="ib-fill" style="width:100%"></div></div><span class="ib-score">1,389</span></div>
+        <div class="ib-row"><span class="ib-name">RevolvingUtilizationOfUnsecuredLines</span><div class="ib-track"><div class="ib-fill" style="width:30%"></div></div><span class="ib-score">424</span></div>
+        <div class="ib-row"><span class="ib-name">NumberOfTime30-59DaysPastDueNotWorse</span><div class="ib-track"><div class="ib-fill" style="width:15%"></div></div><span class="ib-score">207</span></div>
+        <div class="ib-row"><span class="ib-name">NumberOfTime60-89DaysPastDueNotWorse</span><div class="ib-track"><div class="ib-fill" style="width:7%"></div></div><span class="ib-score">92</span></div>
+        <div class="ib-row"><span class="ib-name">DebtRatio</span><div class="ib-track"><div class="ib-fill" style="width:3%"></div></div><span class="ib-score">43</span></div>
+        <div class="ib-row"><span class="ib-name">NumberOfOpenCreditLinesAndLoans</span><div class="ib-track"><div class="ib-fill" style="width:2.5%"></div></div><span class="ib-score">34</span></div>
+      </div>
+    </div>
+
+    <!-- LR confusion matrix -->
+    <div style="margin-top:2rem">
+      <div style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);margin-bottom:.75rem">Neural Network Confusion Matrix — 60,000 Test Customers</div>
+      <div class="cm-wrap">
+        <div class="cm-grid">
+          <div class="cm-head" style="background:transparent;border:none"></div>
+          <div class="cm-head">Predicted: Safe (0)</div>
+          <div class="cm-head">Predicted: Default (1)</div>
+          <div class="cm-rowlbl">Actual: Safe (0)</div>
+          <div class="cm-tn"><div class="cm-num">43,999</div><div class="cm-lbl">True Negative ✓</div></div>
+          <div class="cm-fp"><div class="cm-num">11,951</div><div class="cm-lbl">False Positive ✗</div></div>
+          <div class="cm-rowlbl">Actual: Default (1)</div>
+          <div class="cm-fn"><div class="cm-num">901</div><div class="cm-lbl">False Negative ✗ (costly)</div></div>
+          <div class="cm-tp"><div class="cm-num">3,149</div><div class="cm-lbl">True Positive ✓</div></div>
+        </div>
+      </div>
+      <div style="font-size:.76rem;font-weight:300;color:var(--dust-faint);margin-top:.5rem">901 missed defaulters = 901 approved loans that will not be repaid. Fewest false negatives of all six models.</div>
+    </div>
+
+    <!-- LR coefficients interpretation -->
+    <div class="insight" style="margin-top:2rem">
+      <div class="insight-label">LR Coefficients — Standardized (1 SD = odds multiplier)</div>
+      <p><strong>RevolvingUtilization (0.754):</strong> Each SD increase → default odds × 2.13. Strongest predictor. · <strong>90DaysLate (0.488):</strong> Each SD → × 1.63. · <strong>30-59DaysPastDue (0.414):</strong> Each SD → × 1.51. · <strong>Age (−0.306):</strong> Each SD → × 0.74 (protective). · <strong>MonthlyIncome (−0.201):</strong> Each SD → × 0.82 (protective). All variables retained after stepwise AIC — every feature contributed meaningfully.</p>
+    </div>
+  </div>
+
+  <!-- ══ 04 THRESHOLD ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">04 — Threshold Analysis</div>
+    <h2 class="cs-section-title">Cutoff Calibration —<br/><em>Sensitivity vs. Specificity Tradeoff</em></h2>
+    <div class="cs-body">
+      <p>All six models were evaluated at a 0.5 cutoff for consistent comparison. But in a real bank deployment, <strong>the right threshold depends on the institution's cost structure</strong> — the ratio of financial loss from a bad loan vs. business cost of turning away a good customer. We tested three thresholds using LR with mean imputation:</p>
+    </div>
+
+    <table class="thresh-table">
+      <tr><th>Cutoff</th><th>Sensitivity</th><th>Specificity</th><th>Interpretation</th></tr>
+      <tr><td class="td-mid">0.5 (standard)</td><td class="td-good">74.4%</td><td class="td-good">80.0%</td><td class="td-neutral">Catches 3 in 4 defaulters; clears 4 in 5 safe borrowers</td></tr>
+      <tr><td class="td-mid">0.4</td><td class="td-good">82.7%</td><td class="td-bad">71.8%</td><td class="td-neutral">Catches more defaulters; more false alarms on safe borrowers</td></tr>
+      <tr><td class="td-mid">0.3</td><td class="td-good">88.4%</td><td class="td-bad">61.6%</td><td class="td-neutral">Catches 9 in 10 defaulters; flags ~4 in 10 safe borrowers incorrectly</td></tr>
+    </table>
+
+    <div class="cs-body">
+      <p>If the financial loss of one missed default equals the business cost of turning away <strong>5 good customers</strong>, a cutoff of 0.4 is optimal. If the ratio is 10:1, 0.3 becomes appropriate. This is the most important practical calibration step before any real deployment — and it requires business input, not just statistical optimization.</p>
+    </div>
+  </div>
+
+  <!-- ══ 05 STACKING ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">05 — Ensemble Learning: Stacking</div>
+    <h2 class="cs-section-title">Three Meta-Models —<br/><em>Does Stacking Add Value?</em></h2>
+    <div class="cs-body">
+      <p>Stacking combines multiple individual models by training a meta-model on their outputs. Different base models make different kinds of errors — a meta-model learns the optimal way to combine their predictions. We implemented stacking with all three meta-model options: Neural Network, Logistic Regression, and CART — each trained with 1:14 class weights on a stacked dataset of 17 variables (13 original + 3 base model predictions).</p>
+    </div>
+
+    <div class="stack-flow">
+      <div class="stack-layer">
+        <div class="sl-label">Step 1 — Train Base Models</div>
+        <div class="sl-content">Train <strong>LR, CART, and NN</strong> on 90,000 training records with full cleaning, standardization, and 1:14 class weights.</div>
+      </div>
+      <div class="stack-arrow">↓</div>
+      <div class="stack-layer">
+        <div class="sl-label">Step 2 — Generate Full-Dataset Predictions</div>
+        <div class="sl-content">Apply all three base models to the <strong>full 150,000-record dataset</strong> to produce predicted default probabilities. Probability ranges confirmed: LR [0.024, 1.0] · CART [0, 1.0] · NN [0.011, 0.968] — all well-calibrated.</div>
+      </div>
+      <div class="stack-arrow">↓</div>
+      <div class="stack-layer">
+        <div class="sl-label">Step 3 — Build Stacked Dataset</div>
+        <div class="sl-content">Append three new probability columns (<code>pred_LR</code>, <code>pred_CART</code>, <code>pred_NN</code>) to the original dataset → <strong>17 total variables, 150,000 rows</strong> confirmed via <code>dim(df_stacked)</code>.</div>
+      </div>
+      <div class="stack-arrow">↓</div>
+      <div class="stack-layer">
+        <div class="sl-label">Step 4 — Train Three Meta-Models</div>
+        <div class="sl-content">Train <strong>NN meta-model</strong> (size=6, maxit=200), <strong>LR meta-model</strong> (<code>glm(family=binomial)</code>), and <strong>CART meta-model</strong> (conservative stopping rules + loss matrix) — each on the 90,000 stacked training rows with 1:14 class weights.</div>
+      </div>
+    </div>
+
+    <div class="cs-body" style="margin-top:1.5rem">
+      <p>A revealing finding from the CART meta-model's variable importance: the three most important inputs were <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">pred_NN</code>, <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">pred_LR</code>, and <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">pred_CART</code> — scoring far higher than any original borrower variable. The meta-model is not re-learning from scratch; it is deciding <strong>how much to trust each base model</strong>. The Neural Network scored highest — confirming it provides the strongest signal of the three.</p>
+    </div>
+
+    <div class="model-grid" style="margin-top:1.5rem">
+      <div class="model-card">
+        <div class="mc-type">Stacked — NN Meta</div>
+        <div class="mc-name">Neural Network Meta-model</div>
+        <div class="mc-metric"><span class="mm-k">Accuracy</span><span class="mm-v plasma">78.6%</span></div>
+        <div class="mc-metric"><span class="mm-k">Sensitivity</span><span class="mm-v plasma">77.9%</span></div>
+        <div class="mc-metric"><span class="mm-k">Specificity</span><span class="mm-v plasma">78.6%</span></div>
+        <div class="mc-metric"><span class="mm-k">AUC</span><span class="mm-v plasma">0.86</span></div>
+        <div class="mc-metric"><span class="mm-k">vs. base NN</span><span class="mm-v corona">+0.1% sensitivity</span></div>
+      </div>
+      <div class="model-card best winner-tag">
+        <div class="mc-type">Stacked — LR Meta</div>
+        <div class="mc-name">Logistic Regression Meta-model</div>
+        <div class="mc-metric"><span class="mm-k">Accuracy</span><span class="mm-v td-good">79.3%</span></div>
+        <div class="mc-metric"><span class="mm-k">Sensitivity</span><span class="mm-v td-good">76.9%</span></div>
+        <div class="mc-metric"><span class="mm-k">Specificity</span><span class="mm-v td-good">79.5%</span></div>
+        <div class="mc-metric"><span class="mm-k">AUC</span><span class="mm-v td-good">0.86 ★ Tied best</span></div>
+        <div class="mc-metric"><span class="mm-k">vs. base NN</span><span class="mm-v red">−0.9% sensitivity</span></div>
+      </div>
+      <div class="model-card">
+        <div class="mc-type">Stacked — CART Meta</div>
+        <div class="mc-name">CART Meta-model</div>
+        <div class="mc-metric"><span class="mm-k">Accuracy</span><span class="mm-v corona">78.7%</span></div>
+        <div class="mc-metric"><span class="mm-k">Sensitivity</span><span class="mm-v corona">77.6%</span></div>
+        <div class="mc-metric"><span class="mm-k">Specificity</span><span class="mm-v corona">78.8%</span></div>
+        <div class="mc-metric"><span class="mm-k">AUC</span><span class="mm-v red">0.82 (lowest stacked)</span></div>
+        <div class="mc-metric"><span class="mm-k">vs. base NN</span><span class="mm-v red">−0.2% sensitivity</span></div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Does Stacking Add Value? — Honest Answer: Marginally</div>
+      <p>All three stacked models perform within <strong>~1 percentage point</strong> of the base Neural Network on every metric. The LR meta-model ties the highest AUC (0.86) but has <em>lower sensitivity</em> (76.9%) than the base NN (77.8%) — the metric that matters most in credit risk. Stacking adds significant pipeline complexity (17-variable stacked dataset, 4 model training runs, meta-model selection) for essentially no practical gain on this dataset. The base models are already doing a good job, and the meta-model adds little the individual models haven't already figured out together.</p>
+    </div>
+  </div>
+
+  <!-- ══ 06 FINAL TABLE ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">06 — Final Comparison</div>
+    <h2 class="cs-section-title">All 6 Models —<br/><em>Head-to-Head at Cutoff 0.5</em></h2>
+
+    <table class="mega-table">
+      <tr>
+        <th>Model</th><th>Accuracy</th><th>Error Rate</th>
+        <th>Sensitivity</th><th>Specificity</th><th>AUC</th>
+      </tr>
+      <tr>
+        <td class="td-model">Logistic Regression</td>
+        <td class="td-neutral">79.6%</td><td class="td-neutral">20.4%</td>
+        <td class="td-good">74.4%</td><td class="td-neutral">80.0%</td>
+        <td class="td-good">0.85</td>
+      </tr>
+      <tr>
+        <td class="td-model">CART</td>
+        <td class="td-best">93.6%</td><td class="td-best">6.5%</td>
+        <td class="td-bad">19.0%</td><td class="td-best">99.0%</td>
+        <td class="td-bad">0.79</td>
+      </tr>
+      <tr class="highlight">
+        <td class="td-model">Neural Network ★</td>
+        <td class="td-neutral">78.6%</td><td class="td-neutral">21.4%</td>
+        <td class="td-best">77.8%</td><td class="td-neutral">78.6%</td>
+        <td class="td-best">0.86</td>
+      </tr>
+      <tr class="stacked">
+        <td class="td-model">Stacked — NN Meta</td>
+        <td class="td-neutral">78.6%</td><td class="td-neutral">21.4%</td>
+        <td class="td-good">77.9%</td><td class="td-neutral">78.6%</td>
+        <td class="td-good">0.86</td>
+      </tr>
+      <tr class="stacked">
+        <td class="td-model">Stacked — LR Meta</td>
+        <td class="td-neutral">79.3%</td><td class="td-neutral">20.7%</td>
+        <td class="td-good">76.9%</td><td class="td-neutral">79.5%</td>
+        <td class="td-best">0.86</td>
+      </tr>
+      <tr class="stacked">
+        <td class="td-model">Stacked — CART Meta</td>
+        <td class="td-neutral">78.7%</td><td class="td-neutral">21.3%</td>
+        <td class="td-good">77.6%</td><td class="td-neutral">78.8%</td>
+        <td class="td-neutral">0.82</td>
+      </tr>
+      <tr style="border-top:2px solid var(--border-void)">
+        <td class="td-model" style="color:var(--dust-faint)">Naive Baseline</td>
+        <td style="color:var(--dust-faint);font-family:var(--ff-mono);font-size:.72rem">93.25%</td>
+        <td style="color:var(--dust-faint);font-family:var(--ff-mono);font-size:.72rem">6.75%</td>
+        <td style="color:rgba(255,130,130,.7);font-family:var(--ff-mono);font-size:.72rem">0.0%</td>
+        <td style="color:var(--dust-faint);font-family:var(--ff-mono);font-size:.72rem">100%</td>
+        <td style="color:var(--dust-faint);font-family:var(--ff-mono);font-size:.72rem">0.50</td>
+      </tr>
+    </table>
+
+    <div class="callout">
+      <p>"CART scores 93.6% accuracy — the highest of all models — while catching only 19% of defaulters. The naive baseline scores 93.25% accuracy while catching 0%. CART beats the naive baseline by 0.35 percentage points of accuracy while remaining nearly as blind to defaulters. This is the accuracy paradox with class imbalance."</p>
+    </div>
+  </div>
+
+  <!-- ══ 07 INSIGHTS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">07 — Key Findings</div>
+    <h2 class="cs-section-title">What the Pipeline<br/><em>Revealed</em></h2>
+    <div class="cs-body">
+      <p><strong>1. Class weighting is the most impactful single decision.</strong> Changing from no weights to 1:14 weighting transformed LR sensitivity from ~4% to 74.4% — a 19× improvement — with virtually no change in the underlying data or model architecture. In imbalanced classification, how you weight the loss function matters more than which algorithm you choose.</p>
+      <p><strong>2. Past payment behavior dominates all models.</strong> <code style="font-family:var(--ff-mono);font-size:.82rem;color:var(--plasma)">NumberOfTimes90DaysLate</code> is the single strongest predictor across all six models — scoring 1,389 in CART importance (3× the next variable), largest standardized coefficient in LR, and strongest input node in the NN. This is consistent with how FICO scores are constructed — payment history accounts for 35% of the score.</p>
+      <p><strong>3. Neural Networks outperform LR by detecting non-linear interactions.</strong> Same inputs, same class weights, same data — but NN achieves 77.8% sensitivity vs. LR's 74.4% (and 0.86 vs. 0.85 AUC) because hidden nodes learn multiplicative risk combinations that a linear model requires manual feature engineering to capture.</p>
+      <p><strong>4. Stacking adds complexity without meaningful return here.</strong> All stacked models perform within 1 percentage point of the base NN. When base models are already well-tuned and diverse, the meta-model has little residual error to correct. Stacking would add more value with weaker or more diverse base models.</p>
+      <p><strong>5. Imputation method doesn't matter much.</strong> Mean, bootstrap, and CART imputation via mice produced AUC differences of less than 0.01 and sensitivity differences of less than 1 percentage point. For datasets where 80% of data is complete, imputation method is a second-order concern.</p>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Recommendation — Neural Network, Calibrate the Threshold</div>
+      <p>Deploy the Neural Network (77.8% sensitivity, 0.86 AUC) as the primary scoring model. Before deployment, calibrate the probability cutoff below 0.5 based on the bank's actual cost structure — at 0.3, sensitivity reaches ~88% at the cost of lower specificity. The bank's credit officers should determine the threshold by computing: <em>loss from one bad loan ÷ revenue forgone per rejected good customer</em>. That ratio is the optimal cutoff on the ROC curve.</p>
+    </div>
+  </div>
+
+  <!-- ══ 08 FUTURE ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">08 — Future Directions</div>
+    <h2 class="cs-section-title">What Would<br/><em>Come Next</em></h2>
+    <div class="cs-body">
+      <p><strong>SMOTE (Synthetic Minority Oversampling):</strong> Generate synthetic defaulter records to balance the training set before fitting — especially beneficial for CART, which responds poorly to class weights but well to balanced training data. <strong>Random Forest &amp; Gradient Boosting:</strong> Ensemble tree methods that combine hundreds of decision trees — typically outperform both single CART and neural networks on imbalanced financial datasets. These are the natural next models to benchmark. <strong>Feature engineering:</strong> Interaction terms (utilization × delinquency count), log-transformed ratio features, and time-since-last-delinquency if available. <strong>Production threshold calibration:</strong> The most important practical step — run a cost-benefit analysis on the bank's actual loan performance data to determine the exact cutoff that maximizes expected profit under the model's error distribution.</p>
+    </div>
+  </div>
+
+  <!-- ══ 09 STACK ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">09 — Tech Stack</div>
+    <h2 class="cs-section-title">Full Pipeline<br/><em>Tools &amp; Libraries</em></h2>
+    <div class="tech-grid">
+      <span class="tech">R</span><span class="tech">glm() — Logistic Regression</span>
+      <span class="tech">step() — AIC Stepwise</span><span class="tech">rpart — CART</span>
+      <span class="tech">easyPrune() — Pruning</span><span class="tech">nnet — Neural Network</span>
+      <span class="tech">NeuralNetTools (plotnet)</span><span class="tech">mice — Imputation</span>
+      <span class="tech">caret preProcess — Standardization</span><span class="tech">log1p() Feature Engineering</span>
+      <span class="tech">class_weights 1:14</span><span class="tech">ROCChart / AUC</span>
+      <span class="tech">Stacking (3 meta-models)</span><span class="tech">benchmarkErrorRate()</span>
+    </div>
+  </div>
+
+  <!-- CASE NAV -->
+<div class="case-nav">
+  <a href="python-project.html">← Python Analytics Pipeline</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="index.html">Next: All Projects →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

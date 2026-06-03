@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ChopValue Boston Go-to-Market — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">Consulting · Pricing Strategy · Circular Economy · BCE</div>
+  <h1 class="cs-title">ChopValue Boston —<br/><em>Go-to-Market Strategy</em></h1>
+  <p class="cs-tagline">Full live consulting engagement for a chopstick-upcycling B Corp — pricing strategy, elasticity analysis, and three-tier customer segmentation revealing that B2C mission-aligned buyers hold 40% higher WTP than B2B clients. Delivered as a 30-slide executive presentation.</p>
+  <div class="meta-row"><div><div class="meta-label">Context</div><div class="meta-value">Babson Consulting Experience (BCE) — Live Client Engagement</div></div><div><div class="meta-label">Year</div><div class="meta-value">2024</div></div><div><div class="meta-label">Role</div><div class="meta-value">Consulting Analyst — Team Lead</div></div><div><div class="meta-label">Deliverable</div><div class="meta-chips"><span class="mchip">30-Slide Deck</span><span class="mchip">Pricing Model</span><span class="mchip">Customer Segmentation</span><span class="mchip">12-Month Roadmap</span></div></div></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">01 — What Is It</div>
+  <h2 class="cs-section-title">Go-to-Market Strategy<br/><em>for a Circular Economy Startup</em></h2>
+  <div class="cs-body">
+    <p>A full consulting engagement for <strong>ChopValue Boston</strong> — a certified B Corp that collects used chopsticks from Asian restaurants and upcycles them into premium bamboo furniture and surfaces. The project delivered pricing strategy, price elasticity analysis, customer segmentation, and a 30-slide executive presentation through Babson's Consulting Experience (BCE) program — a live client engagement, not a classroom simulation.</p>
+    <p>ChopValue's model is a real circular economy operation: collect disposable chopsticks (over 80 billion discarded globally per year), compress and treat them into structural bamboo material, and manufacture furniture. The Boston franchise needed to answer a fundamental business question: <strong>how do you price a premium sustainable product in a cost-conscious market without undermining the brand?</strong></p>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">02 — Why We Did It</div>
+  <h2 class="cs-section-title">The Problem:<br/><em>Price Without Undermining Mission</em></h2>
+  <div class="cs-body">
+    <p>ChopValue sits at a genuine strategic tension: their products cost more to produce than conventional furniture because <em>sustainability is built into the supply chain</em>. But their target customers include both mission-aligned buyers who will pay a premium and cost-sensitive B2B buyers (restaurants, co-working spaces) who evaluate price per unit above all else.</p>
+    <p>Price too high, and you serve only the luxury segment — missing the mass market and the mission. Price too low, and you signal commodity status, compress margins, and undermine the circular economy positioning that justifies the premium. Finding the price that maximizes both revenue and brand equity simultaneously requires rigorous analysis, not intuition.</p>
+  </div>
+  <div class="callout"><p>"The circular economy story is the product's biggest differentiator — and it was being undersold. Every chopstick has a journey. That journey is the marketing."</p></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">03 — How We Did It</div>
+  <h2 class="cs-section-title">Five-Phase<br/><em>Consulting Process</em></h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Stakeholder Discovery</div><div class="step-desc">Conducted structured interviews with ChopValue Boston leadership, B2B clients (restaurants, co-working spaces), and target B2C consumers. Mapped the job-to-be-done for each segment — functional, emotional, and social.</div></div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">Competitive Landscape Mapping</div><div class="step-desc">Benchmarked ChopValue against premium sustainable furniture brands (Burrow, Floyd, Maiden Home) and mass-market alternatives. Identified the white space: B Corp ethics at design-forward aesthetics price points — a segment with almost no competition.</div></div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">Price Elasticity Analysis</div><div class="step-desc">Used conjoint-style survey methodology to measure willingness-to-pay across B2B and B2C segments. Built an elasticity model mapping price points to estimated demand volume — revealing that B2C mission-aligned buyers showed ~40% WTP premium over comparable non-sustainable furniture.</div></div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-body"><div class="step-title">Three-Tier Customer Segmentation</div><div class="step-desc">Developed a segmentation framework: Mission-Aligned B2B (restaurants, universities — volume buyers), Design-Forward B2C (urban professionals — premium buyers), and Gift/Occasion (high-margin, low-volume). Each received distinct pricing, messaging, and channel strategy.</div></div></div>
+    <div class="step"><div class="step-num">05</div><div class="step-body"><div class="step-title">Executive Presentation Delivery</div><div class="step-desc">Synthesized all findings into a 30-slide deck with market sizing, pricing recommendations, channel strategy, and a 12-month implementation roadmap — presented live to ChopValue Boston's leadership team.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">04 — Key Findings</div>
+  <h2 class="cs-section-title">Counterintuitive<br/><em>Strategic Insight</em></h2>
+  <div class="cs-body">
+    <p>The most counterintuitive finding: <strong>B2B clients were more price-sensitive than B2C buyers in the mission-aligned segment</strong>. Restaurants evaluated chopstick furniture on cost-per-unit, durability, and lead time — the same criteria as conventional office furniture. Urban professionals buying for home offices or as gifts showed 35–40% willingness to pay above comparable non-sustainable furniture if the provenance story was clearly communicated.</p>
+    <p>This reversed the initial hypothesis that B2B volume would be the growth engine. The recommendation pivoted toward <em>D2C brand building</em> with B2B serving as a visibility channel — restaurants display ChopValue tables, but the primary revenue comes from D2C buyers who see those tables and look up the brand.</p>
+  </div>
+  <div class="outcomes">
+    <div class="outcome"><div class="out-num">30</div><div class="out-label">Slide Executive Presentation</div></div>
+    <div class="outcome"><div class="out-num">3</div><div class="out-label">Customer Segments Defined</div></div>
+    <div class="outcome"><div class="out-num">40%</div><div class="out-label">B2C Willingness-to-Pay Premium</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">05 — Business Relevance</div>
+  <h2 class="cs-section-title">Why This Matters<br/><em>in Modern Business</em></h2>
+  <div class="biz-grid">
+    <div class="biz-card"><div class="biz-icon">Circular Economy</div><div class="biz-title">$4.5T Market by 2030</div><div class="biz-detail">The Ellen MacArthur Foundation estimates the circular economy will generate $4.5 trillion in economic opportunity by 2030. Pricing strategy for circular products is one of the most critical unsolved problems in sustainable business.</div></div>
+    <div class="biz-card"><div class="biz-icon">Strategy</div><div class="biz-title">Premium Positioning for ESG Products</div><div class="biz-detail">As ESG metrics enter corporate procurement decisions, B2B buyers are increasingly mandated to source sustainable suppliers. The B2B channel strategy developed here applies to any sustainability-positioned supplier entering corporate supply chains.</div></div>
+    <div class="biz-card"><div class="biz-icon">Marketing</div><div class="biz-title">Provenance as Brand Equity</div><div class="biz-detail">The finding that "story-telling drives premium pricing" has broad implications — from farm-to-table restaurants to direct-trade coffee. Traceability infrastructure that makes supply chain stories auditable and shareable is a direct business investment.</div></div>
+    <div class="biz-card"><div class="biz-icon">Finance</div><div class="biz-title">Impact Investing Metrics</div><div class="biz-detail">ChopValue's model provides measurable environmental impact (chopsticks diverted, CO₂ avoided) that can be certified and reported to impact investors — a business model increasingly attractive to ESG-focused venture capital.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">06 — Challenges Faced</div>
+  <h2 class="cs-section-title">Real Obstacles<br/><em>Encountered</em></h2>
+  <div class="challenge-grid">
+    <div class="challenge"><div class="challenge-icon">Challenge 1</div><div class="challenge-title">Limited Market Data for a Niche Product</div><div class="challenge-detail">No existing market research covers "upcycled chopstick furniture." Comparable data had to be constructed from adjacent markets (sustainable furniture, B Corp consumer goods) — requiring careful analogical reasoning rather than direct benchmarking.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 2</div><div class="challenge-title">Translating Mission into Price</div><div class="challenge-detail">WTP for sustainability is notoriously difficult to measure — consumers over-report it in surveys and under-pay in practice. The conjoint methodology was specifically chosen to reduce social desirability bias by forcing explicit trade-offs between price and product attributes.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 3</div><div class="challenge-title">Balancing Mission and Margin</div><div class="challenge-detail">Every pricing recommendation had a tension with ChopValue's mission — higher prices improve margin but limit access, while lower prices broaden reach but threaten the financial sustainability of the circular model. There is no objectively "right" answer; it required explicit value trade-offs.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 4</div><div class="challenge-title">Communicating to a Non-Technical Client</div><div class="challenge-detail">Elasticity curves and conjoint utility scores are not intuitive to operators. The 30-slide deck had to translate quantitative analysis into visual narratives and concrete action items that non-analytical stakeholders could adopt immediately.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">07 — How It Can Be Improved</div>
+  <h2 class="cs-section-title">Future<br/><em>Enhancements</em></h2>
+  <div class="improve-list">
+    <div class="improve-item"><div class="improve-num">1</div><div class="improve-body"><div class="improve-title">A/B Price Testing in Production</div><div class="improve-desc">Replace survey-based WTP estimation with live A/B price testing on the e-commerce channel — actual purchase behavior under different price points is far more reliable than stated preferences.</div></div></div>
+    <div class="improve-item"><div class="improve-num">2</div><div class="improve-body"><div class="improve-title">Blockchain Provenance Tracking</div><div class="improve-desc">Implement QR-code-linked blockchain records showing each product's chopstick count, restaurant of origin, and CO₂ diversion metric. This makes the provenance story verifiable and shareable — directly supporting the premium D2C positioning.</div></div></div>
+    <div class="improve-item"><div class="improve-num">3</div><div class="improve-body"><div class="improve-title">Corporate B2B Procurement Targeting</div><div class="improve-desc">Identify corporations with published circular economy procurement commitments and develop a direct enterprise sales channel — moving beyond restaurant walk-ins to structured B2B deals with multi-year furniture refresh cycles.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">08 — Skills Applied</div>
+  <h2 class="cs-section-title">Framework &amp; <em>Tools</em></h2>
+  <div class="tech-grid">
+    <span class="tech">Pricing Strategy</span><span class="tech">Price Elasticity Analysis</span>
+    <span class="tech">Conjoint-Style WTP Survey</span><span class="tech">Customer Segmentation</span>
+    <span class="tech">Competitive Benchmarking</span><span class="tech">Stakeholder Interviews</span>
+    <span class="tech">Executive Communication</span><span class="tech">Circular Economy Strategy</span>
+    <span class="tech">Go-to-Market Roadmap</span><span class="tech">PowerPoint / Data Viz</span>
+  </div>
+</div>
+
+<div class="case-nav">
+  <a href="geca-climate.html">← GECA Climate Model</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="rentsmart.html">Next: RentSmart Dashboard →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

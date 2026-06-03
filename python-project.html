@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Python Analytics Pipeline — E-Commerce — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">Python · SQLite · REST API · Data Pipeline · OIM6301 · Programming for Business Analytics</div>
+  <h1 class="cs-title">Python Analytics<br/><em>Pipeline</em> — E-Commerce<br/>Database &amp; API</h1>
+  <p class="cs-tagline">A complete Python data application integrating SQLite database operations, multi-method analytical querying (SQL and Python-native), automated report generation with CSV export, REST API integration, and an advanced bonus API+database fusion — built end-to-end without any external data libraries.</p>
+  <div class="meta-row"><div><div class="meta-label">Course</div><div class="meta-value">OIM6301: Programming for Business Analytics — Babson College</div></div><div><div class="meta-label">Submitted</div><div class="meta-value">December 14, 2025</div></div><div><div class="meta-label">Role</div><div class="meta-value">Solo Developer</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">Python 3</span><span class="mchip">sqlite3</span><span class="mchip">csv module</span><span class="mchip">urllib.request</span><span class="mchip">json</span><span class="mchip">REST Countries API</span></div></div></div>
+</div>
+<!-- ══ 01 WHAT WAS BUILT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">01 — What Was Built</div>
+    <h2 class="cs-section-title">A Four-Script<br/><em>Data Pipeline</em></h2>
+    <div class="cs-body">
+      <p>The project is a self-contained Python analytics application — <strong>four production-quality scripts</strong> that form a complete data pipeline from raw CSV files to a structured database, to analytical queries, to exported reports, to live API integration. Every script was written using Python's standard library only — no pandas, no SQLAlchemy — demonstrating that clean data engineering doesn't require heavy frameworks.</p>
+    </div>
+
+    <div class="pipeline-flow">
+      <div class="pipe-step">
+        <div class="ps-icon">Task 1.1</div>
+        <div class="ps-name">Database Setup</div>
+        <div class="ps-file">setup_database.py</div>
+        <div class="ps-desc">Creates SQLite schema, imports 3 CSVs, verifies row counts</div>
+      </div>
+      <div class="pipe-step">
+        <div class="ps-icon">Task 1.2</div>
+        <div class="ps-name">Data Analysis</div>
+        <div class="ps-file">analyze_data.py</div>
+        <div class="ps-desc">5 queries — SQL + Python dual implementations for Q3–Q5</div>
+      </div>
+      <div class="pipe-step">
+        <div class="ps-icon">Task 1.3</div>
+        <div class="ps-name">Report Export</div>
+        <div class="ps-file">generate_report.py</div>
+        <div class="ps-desc">CSV export + plain-text summary report with 5 KPIs</div>
+      </div>
+      <div class="pipe-step">
+        <div class="ps-icon">Part 2</div>
+        <div class="ps-name">API Demo</div>
+        <div class="ps-file">api_demo.py</div>
+        <div class="ps-desc">REST Countries API — interactive, JSON parsing, error handling</div>
+      </div>
+      <div class="pipe-step">
+        <div class="ps-icon">Bonus</div>
+        <div class="ps-name">API + DB Fusion</div>
+        <div class="ps-file">api_integration.py</div>
+        <div class="ps-desc">Merges live API data with internal SQLite stats in one view</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 02 DATA ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">02 — The Dataset</div>
+    <h2 class="cs-section-title">E-Commerce Data —<br/><em>3-Table Schema</em></h2>
+    <div class="cs-body">
+      <p>The pipeline operates on a clean, relational e-commerce dataset — <strong>30 customers, 20 products across 2 categories, and 100 order transactions</strong>. Total portfolio revenue: <strong>$4,651.39</strong>. The schema uses foreign keys (orders → customers, orders → products), CHECK constraints (<code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">price &gt;= 0</code>, <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">quantity &gt; 0</code>), UNIQUE on email, and NOT NULL across all critical fields — enforced at the SQLite engine level via <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">PRAGMA foreign_keys = ON</code>.</p>
+    </div>
+
+    <div class="data-snapshot">
+      <div class="snap-card">
+        <div class="snap-title">Customers — 30 rows</div>
+        <div class="snap-row"><span class="snap-key">Cities</span><span class="snap-val">Boston, New York, Chicago…</span></div>
+        <div class="snap-row"><span class="snap-key">Date range</span><span class="snap-val">Jan 2023 – Dec 2025</span></div>
+        <div class="snap-row"><span class="snap-key">PK</span><span class="snap-val">customer_id</span></div>
+        <div class="snap-row"><span class="snap-key">Unique constraint</span><span class="snap-val">email</span></div>
+      </div>
+      <div class="snap-card">
+        <div class="snap-title">Products — 20 rows</div>
+        <div class="snap-row"><span class="snap-key">Categories</span><span class="snap-val">Electronics, Office Supplies</span></div>
+        <div class="snap-row"><span class="snap-key">Price range</span><span class="snap-val">$5.99 – $89.99</span></div>
+        <div class="snap-row"><span class="snap-key">Avg price</span><span class="snap-val">$31.59</span></div>
+        <div class="snap-row"><span class="snap-key">Top product</span><span class="snap-val">Headphones ($359.92 profit)</span></div>
+      </div>
+      <div class="snap-card">
+        <div class="snap-title">Orders — 100 rows</div>
+        <div class="snap-row"><span class="snap-key">Total revenue</span><span class="snap-val">$4,651.39</span></div>
+        <div class="snap-row"><span class="snap-key">Avg order value</span><span class="snap-val">$46.51</span></div>
+        <div class="snap-row"><span class="snap-key">Top category</span><span class="snap-val">Electronics ($3,506.06)</span></div>
+        <div class="snap-row"><span class="snap-key">Avg quantity/order</span><span class="snap-val">1.6 units</span></div>
+      </div>
+    </div>
+
+    <!-- Real report output -->
+    <div class="report-box">
+      <div class="rh">=== SALES SUMMARY REPORT ===</div>
+      <div>Generated: 2025-12-13 21:11:40</div>
+      <br/>
+      <div>Total revenue:           <span class="rv">$4,651.39</span></div>
+      <div>Total number of orders:  <span class="rv">100</span></div>
+      <div>Number of customers:     <span class="rv">30</span></div>
+      <div>Average order value:     <span class="rv">$46.51</span></div>
+      <div>Top category by revenue: <span class="rv">Electronics ($3,506.06)</span></div>
+    </div>
+    <div style="font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint);text-align:center;margin-top:.5rem">Actual output from report.txt — generated by generate_report.py</div>
+  </div>
+
+  <!-- ══ 03 SETUP ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">03 — Task 1.1: Database Setup</div>
+    <h2 class="cs-section-title">setup_database.py —<br/><em>Automated DB Creation</em></h2>
+    <div class="cs-body">
+      <p>The setup script automates the complete database initialization pipeline in a single command. It is designed to be <strong>idempotent</strong> — running it multiple times produces the same clean result, because it deletes any existing database file before recreating it (solving the UNIQUE constraint re-run problem). The CSV importer is generic — it reads the header row dynamically and builds parameterized INSERT statements, making it reusable for any table without modification.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Database Teardown &amp; Recreation</div><div class="step-desc">Checks for existing <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">data/myproject.db</code> and removes it with <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">os.remove()</code> before creating fresh. Ensures idempotency across reruns — no UNIQUE constraint failures on customer_id or email.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Schema DDL — 3 Tables with Full Constraints</div><div class="step-desc">Creates <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">customers</code> (UNIQUE email), <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">products</code> (CHECK price &gt;= 0, CHECK cost &gt;= 0), and <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">orders</code> (FK → customers, FK → products, CHECK quantity &gt; 0). All via <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">PRAGMA foreign_keys = ON</code>.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Generic CSV Importer</div><div class="step-desc">Reads header row dynamically. Builds INSERT statement as <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">INSERT INTO {table} ({columns}) VALUES ({placeholders})</code> — parameterized for SQL injection safety. Replaces empty strings with NULL. Bulk-inserts via <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">executemany()</code> for performance.</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Verification — Row Counts Printed</div><div class="step-desc">Runs <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">SELECT COUNT(*)</code> on each table and prints results — confirming customers: 30, products: 20, orders: 100 after every run.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 04 ANALYSIS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">04 — Task 1.2: Data Analysis</div>
+    <h2 class="cs-section-title">analyze_data.py —<br/><em>5 Queries, Dual Implementation</em></h2>
+    <div class="cs-body">
+      <p>The centerpiece of the project. Queries 1 and 2 use pure SQL. Queries 3, 4, and 5 each have <strong>two complete implementations</strong> — an SQL version using <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">GROUP BY</code> and aggregation functions, and a Python version that fetches raw joined rows and performs all grouping, aggregation, and sorting in Python using dictionaries, loops, and <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">sorted()</code>. Both versions return identical results — verified by visual comparison during development.</p>
+    </div>
+
+    <!-- Q1 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q1 — Customers by City</span><span class="query-badges"><span class="qbadge qb-sql">SQL Only</span></span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which customers are in Boston for local marketing campaigns? Parameterized with <code style="font-family:var(--ff-mono);color:var(--plasma)">?</code> — safe against SQL injection, reusable for any city.</div>
+      <div class="query-tech">SELECT · WHERE · parameterized query · ORDER BY name</div>
+      <div class="query-code"><span class="kw">SELECT</span> customer_id, name, email, city, join_date
+<span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> city = <span class="str">?</span>          <span class="cm">-- parameterized, prevents SQL injection</span>
+<span class="kw">ORDER BY</span> name</div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q2 — Revenue by Product Category</span><span class="query-badges"><span class="qbadge qb-sql">SQL Only</span></span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which product categories generate the most revenue? Reveals that Electronics drives $3,506 of the $4,651 total — 75% of all revenue — a key portfolio concentration insight.</div>
+      <div class="query-tech">JOIN (orders × products) · SUM(quantity × price) · GROUP BY category · ORDER BY revenue DESC</div>
+      <div class="query-code"><span class="kw">SELECT</span> p.category,
+       <span class="fn">SUM</span>(o.quantity * p.price) <span class="kw">AS</span> total_revenue
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id = p.product_id
+<span class="kw">GROUP BY</span> p.category
+<span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q3 — Top Customers by Total Spending</span><span class="query-badges"><span class="qbadge qb-both">SQL + Python</span></span></div>
+      <div class="query-biz"><strong>Business question:</strong> Who are the top 5 most valuable customers by lifetime revenue? Critical for loyalty programs, VIP tiers, and account-based marketing.</div>
+      <div class="query-tech">SQL: 3-table JOIN · SUM · GROUP BY · LIMIT | Python: dict aggregation · lambda sort · list slicing</div>
+      <div class="dual-code">
+        <div class="code-panel">
+          <div class="code-label cl-sql">SQL Version</div>
+          <div class="query-code" style="padding:.5rem 0;background:none"><span class="kw">SELECT</span> c.customer_id, c.name,
+       <span class="fn">SUM</span>(o.quantity * p.price) <span class="kw">AS</span> total_spent
+<span class="kw">FROM</span> customers c
+<span class="kw">JOIN</span> orders o   <span class="kw">ON</span> c.customer_id = o.customer_id
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id = p.product_id
+<span class="kw">GROUP BY</span> c.customer_id, c.name
+<span class="kw">ORDER BY</span> total_spent <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">?</span></div>
+        </div>
+        <div class="code-panel">
+          <div class="code-label cl-py">Python Version (no GROUP BY / SUM in SQL)</div>
+          <div class="query-code" style="padding:.5rem 0;background:none"><span class="py-cmt"># Pull raw rows — no aggregation in SQL</span>
+totals = {}
+<span class="py-kw">for</span> cid, name, qty, price <span class="py-kw">in</span> rows:
+    revenue = qty * price
+    <span class="py-kw">if</span> cid <span class="py-kw">not in</span> totals:
+        totals[cid] = {<span class="py-str">"name"</span>: name, <span class="py-str">"total"</span>: <span class="num">0.0</span>}
+    totals[cid][<span class="py-str">"total"</span>] += revenue
+
+result = [(cid, d[<span class="py-str">"name"</span>], d[<span class="py-str">"total"</span>])
+          <span class="py-kw">for</span> cid, d <span class="py-kw">in</span> totals.items()]
+result.sort(<span class="py-fn">key</span>=<span class="py-kw">lambda</span> x: x[<span class="num">2</span>], reverse=<span class="py-kw">True</span>)
+<span class="py-kw">return</span> result[:<span class="py-fn">limit</span>]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q4 — Monthly Sales Trend</span><span class="query-badges"><span class="qbadge qb-both">SQL + Python</span></span></div>
+      <div class="query-biz"><strong>Business question:</strong> How is revenue trending month by month? Enables seasonality detection, forecasting, and marketing calendar planning.</div>
+      <div class="query-tech">SQL: strftime('%Y-%m') date grouping (SQLite-specific) | Python: order_date[:7] string slicing · dict accumulation · sorted() by key</div>
+      <div class="dual-code">
+        <div class="code-panel">
+          <div class="code-label cl-sql">SQL Version — strftime() for SQLite</div>
+          <div class="query-code" style="padding:.5rem 0;background:none"><span class="kw">SELECT</span>
+  <span class="fn">strftime</span>(<span class="str">'%Y-%m'</span>, o.order_date) <span class="kw">AS</span> year_month,
+  <span class="fn">SUM</span>(o.quantity * p.price)      <span class="kw">AS</span> total_revenue
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id = p.product_id
+<span class="kw">GROUP BY</span> year_month
+<span class="kw">ORDER BY</span> year_month</div>
+        </div>
+        <div class="code-panel">
+          <div class="code-label cl-py">Python Version — string slicing for month grouping</div>
+          <div class="query-code" style="padding:.5rem 0;background:none">monthly = {}
+<span class="py-kw">for</span> order_date, qty, price <span class="py-kw">in</span> rows:
+    <span class="py-cmt"># 'YYYY-MM-DD'[:7] → 'YYYY-MM'</span>
+    ym = order_date[:<span class="num">7</span>]
+    revenue = qty * price
+    <span class="py-kw">if</span> ym <span class="py-kw">not in</span> monthly:
+        monthly[ym] = <span class="num">0.0</span>
+    monthly[ym] += revenue
+
+<span class="py-kw">return</span> <span class="py-fn">sorted</span>(monthly.items(),
+               key=<span class="py-kw">lambda</span> x: x[<span class="num">0</span>])</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="query-block">
+      <div class="query-header"><span class="query-num">Q5 — Product Profitability (Revenue − Cost)</span><span class="query-badges"><span class="qbadge qb-both">SQL + Python</span></span></div>
+      <div class="query-biz"><strong>Business question:</strong> Which products generate the highest total profit (not just revenue)? Headphones lead at $359.92 profit — despite lower sales volume than Wireless Mouse, higher margin wins. Electronics category dominates: top 5 products all Electronics.</div>
+      <div class="query-tech">SQL: SUM(qty × (price−cost)) profit formula | Python: per-product dict with revenue + cost accumulation, profit computed post-aggregation</div>
+      <div class="query-code"><span class="cm">-- SQL version: profit = revenue - cost at line item level, aggregated per product</span>
+<span class="kw">SELECT</span> p.name,
+       <span class="fn">SUM</span>(o.quantity * p.price)              <span class="kw">AS</span> total_revenue,
+       <span class="fn">SUM</span>(o.quantity * p.cost)               <span class="kw">AS</span> total_cost,
+       <span class="fn">SUM</span>(o.quantity * (p.price - p.cost))   <span class="kw">AS</span> total_profit
+<span class="kw">FROM</span> products p
+<span class="kw">JOIN</span> orders o <span class="kw">ON</span> p.product_id = o.product_id
+<span class="kw">GROUP BY</span> p.product_id, p.name
+<span class="kw">ORDER BY</span> total_profit <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">?</span></div>
+    </div>
+  </div>
+
+  <!-- ══ 05 REPORT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">05 — Task 1.3: Report Generation</div>
+    <h2 class="cs-section-title">generate_report.py —<br/><em>CSV Export &amp; Text Summary</em></h2>
+    <div class="cs-body">
+      <p>The report generator demonstrates complete file I/O — reading from SQLite and writing to two output formats: a <strong>CSV export of top 10 products by profit</strong> (with product_id, name, total_quantity, total_revenue, total_cost, total_profit columns), and a <strong>plain-text summary report</strong> with 5 business KPIs. The CSV exporter is a reusable generic function accepting any query result and header list.</p>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <div style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);margin-bottom:1rem">top_products.csv — Actual Generated Output</div>
+      <div class="report-box" style="font-size:.68rem">
+        <div class="rh">product_id, name, total_quantity, total_revenue, total_cost, total_profit</div>
+        <div>120, Headphones, 8, <span class="rv">719.92</span>, 360.00, <span class="rv">359.92</span></div>
+        <div>106, Ergonomic Keyboard, 9, 719.91, 360.00, <span class="rv">359.91</span></div>
+        <div>101, Wireless Mouse, 23, 689.77, 345.00, <span class="rv">344.77</span></div>
+        <div>102, USB-C Cable, 29, 376.71, 145.00, <span class="rv">231.71</span></div>
+        <div>118, Webcam, 5, 349.95, 175.00, <span class="rv">174.95</span></div>
+        <div style="color:var(--dust-faint);margin-top:.5rem">… 5 more products</div>
+      </div>
+    </div>
+
+    <div class="insight" style="margin-top:1.5rem">
+      <div class="insight-label">Business Insight from the Report</div>
+      <p>Electronics category accounts for $3,506 of $4,651 total revenue — <strong>75.4% revenue concentration</strong> in one category. Average order value of $46.51 with 1.6 units per order suggests primarily single-item purchases. Top 3 profitable products (Headphones, Ergonomic Keyboard, Wireless Mouse) account for over 60% of total profit despite representing only 15% of the product catalog — a classic Pareto distribution in product profitability.</p>
+    </div>
+  </div>
+
+  <!-- ══ 06 API ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">06 — Part 2: API Integration</div>
+    <h2 class="cs-section-title">REST Countries API —<br/><em>Demo + Bonus Fusion</em></h2>
+    <div class="cs-body">
+      <p>Two API scripts were built — the required demonstration and an optional bonus integration that merges live external data with internal database analytics. Both use Python's built-in <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">urllib.request</code> and <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">json</code> modules — no third-party libraries — and include comprehensive error handling for HTTP errors, network failures, and malformed JSON responses.</p>
+    </div>
+
+    <div class="api-flow">
+      <div class="api-card api-basic">
+        <div class="api-label">Required — api_demo.py</div>
+        <div class="api-title">REST Countries API — Interactive Demo</div>
+        <div class="api-desc">User enters any country name → script calls <code style="font-family:var(--ff-mono);font-size:.75rem;color:var(--plasma)">restcountries.com/v3.1/name/{input}</code> → parses nested JSON → displays capital, population, region, languages, currency. Languages and currencies extracted from nested dicts using safe <code style="font-family:var(--ff-mono);font-size:.75rem;color:var(--plasma)">.get()</code> access with defaults — no KeyError crashes.</div>
+        <div class="api-output">Enter country name: India
+
+=== Country Information ===
+Name:        India
+Capital:     New Delhi
+Population:  1,428,627,663
+Region:      Asia
+Languages:   Hindi, English
+Currency:    Indian rupee
+
+✅ API demonstration complete!</div>
+      </div>
+      <div class="api-card api-bonus">
+        <div class="api-label">Bonus — api_integration.py</div>
+        <div class="api-title">API + SQLite Fusion — Country + Business Context</div>
+        <div class="api-desc">Asks for both a country name and a city from the customer database. Fetches country profile from the API in parallel with querying total_customers, total_orders, total_revenue, and customers_in_city from SQLite. Displays both side-by-side — simulating a <strong>market expansion decision view</strong>: here's who we have in Boston, here's what the United States market looks like.</div>
+        <div class="api-output">=== Country Overview (REST Countries API) ===
+Country:    United States
+Capital:    Washington, D.C.
+Population: 331,449,281
+Languages:  English
+Currency:   United States dollar
+
+=== Your Business Overview (SQLite) ===
+Total customers:  30
+Total orders:     100
+Total revenue:    $4,651.39
+Customers in Boston: 6</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Why This Integration Matters</div>
+      <p>The bonus integration demonstrates a pattern used in real business analytics: <strong>enriching internal operational data with external contextual data</strong>. A sales analyst might query "how many of our customers are in Germany, and what's the German market context (GDP, population, languages)?" — the same fusion of internal database stats + external API lookup. This is the foundation of how tools like Salesforce Einstein or HubSpot's intelligence layer work at enterprise scale.</p>
+    </div>
+  </div>
+
+  <!-- ══ 07 TECHNICAL CHALLENGES ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">07 — Technical Challenges</div>
+    <h2 class="cs-section-title">Three Real Problems<br/><em>Solved from First Principles</em></h2>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">C1</div><div class="step-body"><div class="step-title">Idempotent Database Setup — UNIQUE Constraint Failures</div><div class="step-desc"><strong>Problem:</strong> Rerunning setup_database.py on an existing database caused <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">sqlite3.IntegrityError: UNIQUE constraint failed: customers.customer_id</code> — because the same rows were being inserted into tables that already had those primary keys.<br/><br/><strong>Solution:</strong> Added <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">os.path.exists(db_path)</code> check + <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">os.remove(db_path)</code> at the start of create_database() — the database is always recreated clean. This makes the script idempotent: running it 10 times produces the same result as running it once.</div></div></div>
+      <div class="step"><div class="step-num">C2</div><div class="step-body"><div class="step-title">Matching SQL and Python Query Results Exactly</div><div class="step-desc"><strong>Problem:</strong> For Q3–Q5, both implementations had to return identical results — same totals, same ordering. Dictionary-based aggregation in Python could produce floating-point rounding differences or ordering ties handled differently than SQL's ORDER BY.<br/><br/><strong>Solution:</strong> Written the SQL version first, verified numbers looked correct, then built the Python version to match — using <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">result.sort(key=lambda x: x[2], reverse=True)</code> to replicate ORDER BY DESC. Ran both versions side-by-side in main() and compared every row visually. Confirmed match for all three queries.</div></div></div>
+      <div class="step"><div class="step-num">C3</div><div class="step-body"><div class="step-title">SQLite Date Functions vs. MySQL Syntax</div><div class="step-desc"><strong>Problem:</strong> Initial AI suggestion for monthly grouping used <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">MONTH(order_date)</code> — valid in MySQL/PostgreSQL but not in SQLite, which has no <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">MONTH()</code> function. This caused a syntax error immediately on execution.<br/><br/><strong>Solution:</strong> Researched SQLite date functions and replaced with <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">strftime('%Y-%m', order_date)</code> — SQLite's native date string formatter. Mirrored this in the Python version using <code style="font-family:var(--ff-mono);font-size:.8rem;color:var(--plasma)">order_date[:7]</code> string slicing — elegant parity between the two implementations.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 08 AI USAGE ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">08 — AI Usage — Honest Assessment</div>
+    <h2 class="cs-section-title">What AI Helped —<br/><em>What I Had to Fix</em></h2>
+
+    <div class="ai-row">
+      <div class="ai-badge ai-good">Helped</div>
+      <div class="ai-body">
+        <div class="ai-title">Folder structure &amp; path configuration</div>
+        <div class="ai-detail">When getting "file not found" errors, AI correctly diagnosed that .py files were inside the data/ folder and suggested moving them to project root with consistent relative paths like <code>data/myproject.db</code>. Saved significant debugging time — validated by running setup_database.py and confirming successful CSV import.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-badge ai-good">Helped</div>
+      <div class="ai-body">
+        <div class="ai-title">Idempotent database reset pattern</div>
+        <div class="ai-detail">Suggested using <code>os.path.exists()</code> + <code>os.remove()</code> to delete the existing DB before recreation — solving the UNIQUE constraint rerun problem. Integrated the snippet into the existing <code>create_database()</code> function and tested by running the script 3 times consecutively. Row counts matched CSV counts every time.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-badge ai-fix">Fixed</div>
+      <div class="ai-body">
+        <div class="ai-title">MySQL syntax in SQLite context — <code>MONTH()</code> function</div>
+        <div class="ai-detail">AI initially suggested <code>SELECT MONTH(order_date), SUM(...)</code> for monthly grouping — MySQL-specific syntax that doesn't exist in SQLite. Got immediate syntax error on execution. Fixed by researching SQLite docs and replacing with <code>strftime('%Y-%m', order_date)</code>. Lesson: always test AI-generated SQL in the actual target database.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-badge ai-good">Helped</div>
+      <div class="ai-body">
+        <div class="ai-title">Safe JSON parsing patterns for nested API responses</div>
+        <div class="ai-detail">REST Countries API returns deeply nested JSON — languages as a dict of code→name, currencies as a dict of code→{name, symbol}. AI suggested using <code>.get()</code> with defaults throughout, wrapping calls in try/except for HTTPError, URLError, and ValueError. Tested with valid inputs, invalid names, and network-off simulation. All edge cases handled cleanly.</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:1.75rem">
+      <p>"AI accelerated boilerplate and error diagnosis — but every suggestion was tested against the actual database and actual API before being accepted. The MySQL/SQLite syntax difference alone would have wasted hours if blindly trusted."</p>
+    </div>
+  </div>
+
+  <!-- ══ 09 RESULTS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">09 — Results &amp; Business Value</div>
+    <h2 class="cs-section-title">What This Pipeline<br/><em>Delivers</em></h2>
+    <div class="outcomes">
+      <div class="outcome"><div class="out-num">5</div><div class="out-label">Scripts — Zero External Libraries</div></div>
+      <div class="outcome"><div class="out-num">8</div><div class="out-label">Query Implementations (5 questions × SQL + Python dual)</div></div>
+      <div class="outcome"><div class="out-num">2</div><div class="out-label">Output Files Generated (CSV + TXT Report)</div></div>
+    </div>
+    <div class="cs-body" style="margin-top:1.5rem">
+      <p>The pipeline answers every operational question an e-commerce analytics team would need weekly: <strong>which customers to target by city</strong> (Q1), <strong>which product categories drive revenue</strong> (Q2 — Electronics: 75%), <strong>who the top 5 customers are</strong> (Q3), <strong>how sales are trending month-by-month</strong> (Q4), and <strong>which products are most profitable after cost</strong> (Q5 — Headphones leads at $360 profit). All outputs are programmatically generated and repeatable — run the pipeline on fresh data and the reports update automatically.</p>
+      <p>The dual SQL/Python implementation demonstrates something more important than just two ways to get the same answer: it shows <strong>when to push work to the database vs. when to handle it in application code</strong> — a decision every data engineer and analytics engineer makes daily. SQL is optimal for aggregation at scale; Python is necessary when business logic is too complex for SQL, when you need dynamic conditional logic, or when you're building reusable functions for a larger application.</p>
+    </div>
+  </div>
+
+  <!-- ══ 10 STACK ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">10 — Tech Stack</div>
+    <h2 class="cs-section-title">Tools &amp; <em>Libraries</em></h2>
+    <div class="tech-grid">
+      <span class="tech">Python 3</span><span class="tech">sqlite3 (stdlib)</span><span class="tech">csv (stdlib)</span>
+      <span class="tech">urllib.request (stdlib)</span><span class="tech">json (stdlib)</span><span class="tech">datetime (stdlib)</span>
+      <span class="tech">os (stdlib)</span><span class="tech">REST Countries API</span>
+      <span class="tech">SQLite</span><span class="tech">PRAGMA foreign_keys</span>
+      <span class="tech">Parameterized Queries</span><span class="tech">executemany() bulk insert</span>
+    </div>
+    <div style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(0,212,255,0.03);border:1px solid rgba(0,212,255,0.12);border-radius:4px;font-size:.83rem;font-weight:300;color:var(--dust);line-height:1.8">
+      <span style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-right:.75rem">Note</span>
+      Zero external dependencies — no pandas, no requests, no SQLAlchemy. The entire application runs on Python's standard library, demonstrating that clean data engineering doesn't require heavyweight frameworks. Also includes a <code style="font-family:var(--ff-mono);color:var(--plasma)">.env</code> file (listed in <code style="font-family:var(--ff-mono);color:var(--plasma)">.gitignore</code>) as a best-practice placeholder for API key management — even though the REST Countries API requires no key.
+    </div>
+  </div>
+
+  <!-- CASE NAV -->
+<div class="case-nav">
+  <a href="db-project.html">← BabsonAI Labs DB</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="credit-ml.html">Next: Credit Default ML →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

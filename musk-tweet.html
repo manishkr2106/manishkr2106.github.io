@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Musk Tweet NLP Analysis — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">NLP · Sentiment · Topic Modeling · IBM Watsonx · Python</div>
+  <h1 class="cs-title">Musk Tweet<br/><em>NLP Analysis</em></h1>
+  <p class="cs-tagline">Five-method NLP pipeline on Elon Musk's tweet corpus — TextBlob sentiment, TF-IDF extraction, BERTopic topic modeling, and IBM Watsonx.ai synthesis — revealing 6 communication archetypes and the strategic logic behind the chaos.</p>
+  <div class="meta-row"><div><div class="meta-label">Context</div><div class="meta-value">MBA Analytics Project — Babson College</div></div><div><div class="meta-label">Year</div><div class="meta-value">2025</div></div><div><div class="meta-label">Role</div><div class="meta-value">Solo Analyst</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">Python</span><span class="mchip">TextBlob</span><span class="mchip">BERTopic</span><span class="mchip">TF-IDF</span><span class="mchip">spaCy</span><span class="mchip">IBM Watsonx.ai</span></div></div></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">01 — What Is It</div>
+  <h2 class="cs-section-title">Multi-Method NLP Analysis<br/><em>of a Mega-Influencer</em></h2>
+  <div class="cs-body">
+    <p>A five-method NLP pipeline applied to Elon Musk's public tweet corpus — combining <strong>TextBlob sentiment scoring, TF-IDF keyword extraction, BERTopic neural topic modeling, and IBM Watsonx.ai generative synthesis</strong> — to decode the communication patterns of the world's most-watched social media voice and decode whether there is strategic logic behind what appears to be chaos.</p>
+    <p>Musk's tweets have moved cryptocurrency markets by billions, triggered SEC investigations, shaped public opinion on EVs and space, and catalyzed employee unrest. Understanding the structure of this communication influence is not just academically interesting — it is a real business problem in social listening, brand analytics, and financial risk management.</p>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">02 — Why We Did It</div>
+  <h2 class="cs-section-title">The Business Question:<br/><em>Is Chaos Strategic?</em></h2>
+  <div class="cs-body">
+    <p>Every brand, every executive, every public institution now has a social media presence that functions as a real-time communication channel with measurable market impact. The same NLP methods used here — sentiment analysis, topic modeling, keyword extraction — are used by hedge funds to parse earnings calls, by brand managers to monitor customer sentiment, and by political campaigns to track public opinion.</p>
+    <p>Musk's corpus is an extreme case study of a phenomenon that affects every public-facing organization: <em>how do you measure, quantify, and predict the communication behavior of a high-influence actor in real time?</em></p>
+  </div>
+  <div class="callout"><p>"The data suggests less impulsive chaos and more calculated provocation — each tweet type serves a distinct audience activation function. Ambiguity rarely goes viral; extreme polarity almost always does."</p></div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">03 — How We Did It</div>
+  <h2 class="cs-section-title">Five-Layer NLP<br/><em>Pipeline</em></h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-body"><div class="step-title">Corpus Assembly &amp; Preprocessing</div><div class="step-desc">Assembled Musk's public tweet corpus. Applied text normalization: lowercasing, stopword removal, URL/mention stripping, tokenization, and lemmatization via spaCy. Removed retweets and replies to focus on original authored content.</div></div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-body"><div class="step-title">Sentiment Scoring — TextBlob</div><div class="step-desc">Computed polarity (−1 to +1) and subjectivity (0 to 1) scores across the full corpus. Mapped sentiment distribution over time to identify emotional clusters, volatility bursts, and correlation with major external events.</div></div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-body"><div class="step-title">Keyword Extraction — TF-IDF</div><div class="step-desc">Applied TF-IDF vectorization to identify the most discriminating terms across tweet subgroups segmented by sentiment bucket, time period, and inferred topic. Revealed the vocabulary fingerprint of each communication mode.</div></div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-body"><div class="step-title">Topic Modeling — BERTopic</div><div class="step-desc">Used BERTopic (BERT sentence embeddings + UMAP dimensionality reduction + HDBSCAN clustering) to discover latent topic clusters without predefined labels — a fully unsupervised approach that identifies emergent themes.</div></div></div>
+    <div class="step"><div class="step-num">05</div><div class="step-body"><div class="step-title">Generative Synthesis — IBM Watsonx.ai</div><div class="step-desc">Fed topic clusters and sentiment pattern summaries into IBM Granite via watsonx.ai to generate narrative-level interpretations — translating statistical patterns into human-readable communication archetype descriptions.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">04 — Key Findings</div>
+  <h2 class="cs-section-title">What the Data<br/><em>Revealed</em></h2>
+  <div class="cs-body">
+    <p>BERTopic identified <strong>6 dominant topic clusters</strong>: Tesla/EV innovation, SpaceX/space exploration, cryptocurrency (especially DOGE), Twitter platform policy, political commentary, and personal/meme content. The meme cluster — despite seeming trivial — had the highest retweet-per-follower ratio of all six. Virality favors entertainment, not information.</p>
+    <p>Sentiment analysis revealed a <strong>bimodal distribution</strong> — tweets were either highly positive or sharply negative, with very little neutral content. This extreme polarity is itself a strategic signal: ambiguity does not get shared. Crypto-related tweets showed the highest sentiment volatility and the strongest correlation with external market movements.</p>
+  </div>
+  <div class="outcomes">
+    <div class="outcome"><div class="out-num">6</div><div class="out-label">Topic Clusters Found</div></div>
+    <div class="outcome"><div class="out-num">5</div><div class="out-label">NLP Methods Applied</div></div>
+    <div class="outcome"><div class="out-num">2×</div><div class="out-label">Higher Engagement on Meme Tweets</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">05 — Business Relevance</div>
+  <h2 class="cs-section-title">Why This Matters<br/><em>in Modern Business</em></h2>
+  <div class="biz-grid">
+    <div class="biz-card"><div class="biz-icon">Finance</div><div class="biz-title">Alternative Data for Trading</div><div class="biz-detail">Hedge funds parse executive social media and earnings call transcripts using the same NLP stack — sentiment signals from Twitter have been shown to predict short-term price movements better than traditional fundamental indicators.</div></div>
+    <div class="biz-card"><div class="biz-icon">Brand</div><div class="biz-title">Social Listening at Scale</div><div class="biz-detail">Every Fortune 500 brand monitors its social sentiment continuously. BERTopic-style topic modeling surfaces emerging brand narratives before they become crises — giving communications teams days of lead time to respond.</div></div>
+    <div class="biz-card"><div class="biz-icon">Risk</div><div class="biz-title">Reputational Risk Modeling</div><div class="biz-detail">Insurers and institutional investors model celebrity/executive reputational risk. This pipeline provides a quantified communication-risk profile that can be integrated into ESG scoring and governance assessments.</div></div>
+    <div class="biz-card"><div class="biz-icon">PR</div><div class="biz-title">Executive Communication Strategy</div><div class="biz-detail">PR firms use NLP analysis of competitor executive communications to calibrate their clients' positioning. Understanding which topics drive engagement informs content calendars and crisis communication protocols.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">06 — Challenges Faced</div>
+  <h2 class="cs-section-title">Real Obstacles<br/><em>Encountered</em></h2>
+  <div class="challenge-grid">
+    <div class="challenge"><div class="challenge-icon">Challenge 1</div><div class="challenge-title">Short-Text NLP Limitations</div><div class="challenge-detail">Tweets average ~15 words — far shorter than the documents most NLP models are designed for. TF-IDF and BERTopic both perform better with longer text, requiring careful parameter tuning (min_topic_size, n_gram_range) to produce coherent clusters.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 2</div><div class="challenge-title">Irony and Sarcasm Detection</div><div class="challenge-detail">TextBlob classifies "Yeah, great idea Elon 🙄" as positive. Musk's corpus is dense with irony, internet humor, and ambiguous references that rule-based sentiment models systematically misclassify — a fundamental limitation of lexicon-based approaches.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 3</div><div class="challenge-title">Nested JSON from Watsonx.ai</div><div class="challenge-detail">IBM Watsonx.ai's API returns complex nested JSON with languages, currencies, and topic structures that required safe .get() access patterns, type checking, and error-handling to parse reliably across the full corpus.</div></div>
+    <div class="challenge"><div class="challenge-icon">Challenge 4</div><div class="challenge-title">Causality vs. Correlation</div><div class="challenge-detail">The crypto-tweet / market-movement correlation is observable but direction of causality is ambiguous — does Musk tweet when markets move, or do markets move when Musk tweets? Distinguishing these requires a proper event-study design beyond NLP alone.</div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">07 — How It Can Be Improved</div>
+  <h2 class="cs-section-title">Future<br/><em>Enhancements</em></h2>
+  <div class="improve-list">
+    <div class="improve-item"><div class="improve-num">1</div><div class="improve-body"><div class="improve-title">Fine-Tuned Sentiment Model</div><div class="improve-desc">Replace TextBlob with a fine-tuned RoBERTa or Twitter-BERT model trained specifically on social media sarcasm and irony — dramatically improving accuracy on short, colloquial text.</div></div></div>
+    <div class="improve-item"><div class="improve-num">2</div><div class="improve-body"><div class="improve-title">Market Impact Event Study</div><div class="improve-desc">Design a proper event study — measure abnormal stock/crypto returns in the 1, 6, and 24-hour windows after high-sentiment tweets in each topic cluster to quantify financial impact by communication type.</div></div></div>
+    <div class="improve-item"><div class="improve-num">3</div><div class="improve-body"><div class="improve-title">Temporal Topic Evolution</div><div class="improve-desc">Add time-indexed analysis to show how topic distribution shifted before/after major events (Twitter acquisition, Tesla earnings misses, SEC actions) — revealing whether communication strategy adapts to context.</div></div></div>
+    <div class="improve-item"><div class="improve-num">4</div><div class="improve-body"><div class="improve-title">Cross-Platform Comparison</div><div class="improve-desc">Extend to LinkedIn, earnings calls, and TED talks to contrast Musk's platform-specific communication styles — testing whether the same polarization strategy appears in formal vs. informal channels.</div></div></div>
+  </div>
+</div>
+
+<div class="cs-section">
+  <div class="cs-section-label">08 — Tech Stack</div>
+  <h2 class="cs-section-title">Tools</h2>
+  <div class="tech-grid">
+    <span class="tech">Python</span><span class="tech">TextBlob</span><span class="tech">BERTopic</span>
+    <span class="tech">scikit-learn TF-IDF</span><span class="tech">spaCy</span><span class="tech">UMAP</span>
+    <span class="tech">HDBSCAN</span><span class="tech">IBM Watsonx.ai</span><span class="tech">IBM Granite</span><span class="tech">Matplotlib</span>
+  </div>
+</div>
+
+<div class="case-nav">
+  <a href="boston-housing.html">← Boston Housing ML</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="zara-logistics.html">Next: Zara NYC Optimization →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>

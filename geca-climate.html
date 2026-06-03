@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GECA — Climate Systems Model — Manish Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#04060f;--deep:#080d1a;--nebula:#111e35;
+  --corona:#f5a623;--corona-dim:#c4841a;--corona-glow:rgba(245,166,35,0.18);
+  --plasma:#00d4ff;--plasma-glow:rgba(0,212,255,0.12);
+  --stellar:#fff8f0;--star:#ffffff;
+  --dust:rgba(255,248,240,0.6);--dust-faint:rgba(255,248,240,0.28);
+  --border-void:rgba(255,248,240,0.07);--border-soft:rgba(255,248,240,0.13);--border-corona:rgba(245,166,35,0.32);
+  --ff-display:'Cormorant Garamond',Georgia,serif;
+  --ff-body:'Outfit',system-ui,sans-serif;
+  --ff-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-body);background:var(--void);color:var(--stellar);line-height:1.6;font-size:16px;overflow-x:hidden;cursor:none}
+.cursor{position:fixed;width:8px;height:8px;background:var(--corona);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,166,35,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 4rem;height:64px;background:rgba(4,6,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-void)}
+.nav-logo{font-family:var(--ff-display);font-size:1.1rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stellar);text-decoration:none}
+.nav-logo span{color:var(--corona)}
+.nav-back{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;border:1px solid var(--border-void);padding:.4rem 1rem;border-radius:2px;transition:border-color .2s,color .2s}
+.nav-back:hover{border-color:var(--border-corona);color:var(--corona)}
+.container{max-width:880px;margin:0 auto;padding:0 3rem;position:relative;z-index:10}
+.cs-hero{padding:120px 0 80px;border-bottom:1px solid var(--border-void);margin-bottom:80px}
+.cs-domain{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--plasma);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.cs-domain::before{content:'';display:block;width:24px;height:1px;background:var(--plasma)}
+.cs-title{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,4.8rem);font-weight:300;line-height:1.06;letter-spacing:-.01em;color:var(--star);margin-bottom:1.5rem}
+.cs-title em{font-style:italic;color:var(--corona)}
+.cs-tagline{font-size:1.05rem;font-weight:300;color:var(--dust);line-height:1.8;max-width:640px;margin-bottom:3rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:2.5rem}
+.meta-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.4rem}
+.meta-value{font-size:.9rem;font-weight:400;color:var(--stellar)}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.mchip{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.07em;padding:.2rem .6rem;border-radius:2px;border:1px solid var(--border-void);color:var(--dust);background:rgba(255,248,240,0.03)}
+.cs-section{margin-bottom:72px}
+.cs-section-label{font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.cs-section-label::before{content:'';display:block;width:20px;height:1px;background:var(--corona)}
+.cs-section-title{font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:var(--star);margin-bottom:1.25rem;line-height:1.2}
+.cs-section-title em{font-style:italic;color:var(--corona)}
+.cs-body p{font-size:.97rem;font-weight:300;color:var(--dust);line-height:1.95;margin-bottom:1.1rem}
+.cs-body p strong{color:var(--stellar);font-weight:500}
+.cs-body p em{color:var(--corona);font-style:normal}
+.callout{border-left:2px solid var(--corona);padding:1.5rem 1.75rem;background:rgba(245,166,35,0.05);border-radius:0 4px 4px 0;margin:2rem 0}
+.callout p{font-family:var(--ff-display);font-size:1.2rem;font-style:italic;color:var(--stellar);line-height:1.7;margin:0}
+.steps{display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0}
+.step{display:flex;gap:1.25rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px}
+.step-num{font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--corona);flex-shrink:0;margin-top:3px;width:1.5rem}
+.step-title{font-size:.93rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.step-desc{font-size:.86rem;font-weight:300;color:var(--dust);line-height:1.75}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.outcome{padding:1.5rem;background:rgba(255,248,240,0.03);border:1px solid var(--border-void);border-radius:4px;text-align:center;position:relative;overflow:hidden}
+.outcome::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,var(--corona),transparent)}
+.out-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:300;color:var(--corona);line-height:1;margin-bottom:.4rem}
+.out-label{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dust-faint)}
+.tech-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tech{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.08em;padding:.35rem .8rem;border-radius:2px;border:1px solid var(--border-corona);color:var(--corona);background:rgba(245,166,35,0.06)}
+.insight{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+.insight-label{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plasma);margin-bottom:.6rem}
+.insight p{font-size:.9rem;font-weight:300;color:var(--dust);line-height:1.8;margin:0}
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.challenge{padding:1.1rem 1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.challenge-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--corona);margin-bottom:.4rem}
+.challenge-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.challenge-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.biz-card{padding:1.25rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.biz-icon{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--plasma);margin-bottom:.4rem}
+.biz-title{font-size:.9rem;font-weight:500;color:var(--stellar);margin-bottom:.3rem}
+.biz-detail{font-size:.81rem;font-weight:300;color:var(--dust);line-height:1.7}
+.improve-list{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.improve-item{display:flex;gap:1rem;padding:.9rem 1.1rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px}
+.improve-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--corona);flex-shrink:0;width:1.5rem;margin-top:2px}
+.improve-body .improve-title{font-size:.88rem;font-weight:500;color:var(--stellar);margin-bottom:.2rem}
+.improve-body .improve-desc{font-size:.82rem;font-weight:300;color:var(--dust);line-height:1.7}
+.case-nav{display:flex;justify-content:space-between;align-items:center;padding:3rem 0;border-top:1px solid var(--border-void);margin-top:80px}
+.case-nav a{font-family:var(--ff-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);text-decoration:none;transition:color .2s}
+.case-nav a:hover{color:var(--corona)}
+.case-nav-center{font-family:var(--ff-display);font-size:.95rem;color:var(--dust-faint)}
+@media(max-width:700px){nav{padding:0 1.25rem}.container{padding:0 1.25rem}.outcomes{grid-template-columns:1fr 1fr}.meta-row{gap:1.5rem}.challenge-grid,.biz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="cursor" id="cur"></div><div class="cursor-ring" id="curRing"></div>
+<nav><a class="nav-logo" href="index.html">Manish <span>Kumar</span></a><a class="nav-back" href="index.html">← Back to Portfolio</a></nav>
+<div class="container">
+<div class="cs-hero">
+  <div class="cs-domain">Systems Thinking · Vensim · Stock-Flow Modeling · Climate Science · MBA7504</div>
+  <h1 class="cs-title">Human Activity →<br/>Emissions →<br/><em>Global Warming</em></h1>
+  <p class="cs-tagline">A full stock-and-flow system dynamics model of the human activity–emissions–global warming system — built in Vensim, grounded in NOAA/EPA/IPCC data, and projecting three CO₂ and temperature trajectories through 2050 under Business-as-Usual, Strong Policy, and Policy + Monitoring scenarios.</p>
+  <div class="meta-row"><div><div class="meta-label">Course</div><div class="meta-value">MBA7504: Systems Thinking &amp; Modeling — Babson College</div></div><div><div class="meta-label">Team</div><div class="meta-value">Julie Arloro-Mehta · Jake DiAdamo · Tejas Kulkarni · Manish Kumar · Nick Leccese</div></div><div><div class="meta-label">Submitted</div><div class="meta-value">December 5, 2025</div></div><div><div class="meta-label">Stack</div><div class="meta-chips"><span class="mchip">Vensim PLE</span><span class="mchip">Stock-Flow Modeling</span><span class="mchip">NOAA Data</span><span class="mchip">EPA Inventory</span><span class="mchip">IPCC Radiative Forcing</span></div></div></div>
+</div>
+<!-- ══ 01 CONTEXT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">01 — Context</div>
+    <h2 class="cs-section-title">Why Model<br/><em>Climate as a System?</em></h2>
+    <div class="cs-body">
+      <p>Climate change is the canonical complex systems problem — it exhibits <strong>nonlinear feedbacks, long time delays, deep uncertainty, and civilization-scale stakes</strong>. Traditional linear analysis fails to capture why the climate system can appear stable for decades and then tip rapidly. System dynamics modeling — the discipline of understanding behavior through feedback structures and stock accumulation — exists precisely for this class of problem.</p>
+      <p>The project, formally titled <em>"Human Activity → Emissions → Global Warming: Narrative, Data, Model &amp; Critique"</em>, modeled the full causal chain from human economic activity through GHG emissions to atmospheric accumulation, temperature rise, and cascading climate impacts. The goal was not just to simulate — but to identify <strong>where and how interventions can break reinforcing loops and strengthen balancing mechanisms</strong> before tipping points make change structurally difficult.</p>
+    </div>
+
+    <!-- Key stats -->
+    <div class="data-band">
+      <div class="data-band-item">
+        <div class="dbi-num">426 ppm</div>
+        <div class="dbi-label">Atmospheric CO₂</div>
+        <div class="dbi-src">NOAA Mauna Loa, Nov 2025</div>
+      </div>
+      <div class="data-band-item">
+        <div class="dbi-num">1.2°C</div>
+        <div class="dbi-label">Rise Since Pre-Industrial</div>
+        <div class="dbi-src">NASA / IPCC</div>
+      </div>
+      <div class="data-band-item">
+        <div class="dbi-num">41.6 Gt</div>
+        <div class="dbi-label">CO₂ Emitted in 2024</div>
+        <div class="dbi-src">Global Carbon Budget</div>
+      </div>
+      <div class="data-band-item">
+        <div class="dbi-num">3.6B+</div>
+        <div class="dbi-label">People Facing Water Scarcity</div>
+        <div class="dbi-src">UNESCO / WRI Aqueduct</div>
+      </div>
+    </div>
+
+    <div class="cs-body">
+      <p>The system's danger lies not in any single emission event but in <strong>stock accumulation</strong>: natural sinks (land + ocean) absorb roughly half of annual CO₂, leaving the rest to accumulate permanently in the atmosphere. Unlike a flow problem (reduce the rate, fix the problem), a stock problem requires sustained intervention over decades before concentrations stabilize — a counterintuitive reality that most policy timelines underestimate.</p>
+    </div>
+    <div class="callout">
+      <p>"In a stock-and-flow system, cutting emissions by 50% does not cut the atmospheric stock by 50% — it merely slows the rate of accumulation. This distinction is the most important thing most policymakers don't understand."</p>
+    </div>
+  </div>
+
+  <!-- ══ 02 SYSTEM STRUCTURE ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">02 — System Structure</div>
+    <h2 class="cs-section-title">Stocks, Flows &amp;<br/><em>Feedback Architecture</em></h2>
+    <div class="cs-body">
+      <p>The Vensim model was built around a core stock-and-flow structure with four key stocks: <strong>Atmospheric CO₂, Global Temperature, Ice Coverage, and Permafrost Mass</strong>. Human activity sectors (agriculture, industry, transport, energy) drive emission flows into the atmospheric stock. Natural absorption (land + ocean sinks) partially counters the accumulation, but at a declining rate as sinks saturate.</p>
+    </div>
+
+    <!-- Stock-flow equation -->
+    <div class="formula-block">
+      <div style="color:var(--dust-faint);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">Core Stock-Flow Equations</div>
+      <div><span class="var">d[CO₂]/dt</span>  =  Emissions(t)  −  NaturalAbsorption(t)</div>
+      <div class="comment">  // Natural sinks (land + ocean) remove ~50% of annual CO₂; the rest accumulates permanently</div>
+      <br/>
+      <div><span class="var">ΔF</span>  =  5.35 · ln(C / C₀)   <span class="comment">  // Radiative forcing (W/m²), C₀=278 ppm preindustrial baseline — IPCC Myhre et al.</span></div>
+      <br/>
+      <div><span class="var">ΔT</span>  =  λ · ΔF              <span class="comment">  // Temperature anomaly, λ = climate sensitivity 0.6–1.0 °C per W/m²</span></div>
+      <br/>
+      <div><span class="var">I(t)</span>  ∝  ΔT²              <span class="comment">  // Impact intensity increases nonlinearly — amplified by reinforcing feedback loops</span></div>
+      <br/>
+      <div style="color:var(--dust-faint);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin:.75rem 0 .5rem">Baseline Parameters (2025)</div>
+      <div>C₀ = 278 ppm (preindustrial)  ·  C₂₀₂₅ ≈ 426.5 ppm  ·  Emissions₂₀₂₅ ≈ 38.1 GtCO₂/yr</div>
+      <div>AF (airborne fraction) = 0.40–0.55  ·  1 ppm ≈ 2.12 GtC ≈ 7.8 GtCO₂</div>
+    </div>
+
+    <!-- Feedback loops -->
+    <div style="margin-top:2rem">
+      <div style="font-family:var(--ff-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--corona);display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem"><span style="display:block;width:20px;height:1px;background:var(--corona)"></span>Feedback Loop Architecture</div>
+      <div class="feedback-loop">
+
+        <div class="loop">
+          <div class="loop-header">
+            <span class="loop-type loop-reinforcing">R1 — Reinforcing</span>
+            <span class="loop-name">Ice-Albedo Feedback</span>
+          </div>
+          <div class="loop-desc">As temperature rises, Arctic and Antarctic ice melts. Ice reflects 80–90% of incoming solar radiation (high albedo); open ocean absorbs 94%. As ice coverage drops, the planet absorbs more solar energy, warming further — which melts more ice. This loop is self-accelerating once triggered and represents one of the most dangerous tipping elements in the climate system.</div>
+          <div class="loop-chain">↑ Temperature → ↓ Ice Cover → ↓ Albedo → ↑ Solar Absorption → ↑ Temperature (R+)</div>
+        </div>
+
+        <div class="loop">
+          <div class="loop-header">
+            <span class="loop-type loop-reinforcing">R2 — Reinforcing</span>
+            <span class="loop-name">Permafrost Methane Loop</span>
+          </div>
+          <div class="loop-desc">As global temperatures rise, permafrost (frozen ground in Arctic regions containing millennia of organic matter) begins to thaw. Thawing permafrost releases CH₄ (methane) — a GHG ~80x more potent than CO₂ over 20 years. This CH₄ raises atmospheric GHG concentrations, accelerating warming, which triggers more thaw. The estimated carbon stock in permafrost (~1,700 GtC) exceeds total human industrial emissions since 1750.</div>
+          <div class="loop-chain">↑ Temperature → ↑ Permafrost Thaw → ↑ CH₄ Release → ↑ GHG Stock → ↑ Temperature (R+)</div>
+        </div>
+
+        <div class="loop">
+          <div class="loop-header">
+            <span class="loop-type loop-balancing">B1 — Balancing</span>
+            <span class="loop-name">Natural Carbon Sinks</span>
+          </div>
+          <div class="loop-desc">Land ecosystems (forests, soils) and oceans act as carbon sinks — absorbing approximately 50% of annual anthropogenic CO₂ emissions. As atmospheric CO₂ rises, some additional CO₂ fertilization of vegetation occurs, slightly increasing sink capacity. However, warming and deforestation are degrading sinks over time — threatening to flip this balancing loop into a neutral or even reinforcing dynamic.</div>
+          <div class="loop-chain">↑ CO₂ Stock → ↑ Absorption Rate → ↓ Net CO₂ Accumulation (B−)</div>
+        </div>
+
+        <div class="loop">
+          <div class="loop-header">
+            <span class="loop-type loop-balancing">B2 — Balancing</span>
+            <span class="loop-name">Policy &amp; Technology Response</span>
+          </div>
+          <div class="loop-desc">As climate impacts become more severe and observable, political pressure and economic incentives for clean technology adoption grow. Renewables displace fossil fuels, methane leak regulations reduce CH₄ emissions, and monitoring systems provide faster feedback to decision-makers — compressing the information delay that historically slows climate policy response. This is the primary human-controllable balancing loop in the system.</div>
+          <div class="loop-chain">↑ Climate Impacts → ↑ Policy Pressure → ↑ Clean Tech Adoption → ↓ Emissions → ↓ CO₂ Stock (B−)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Critical System Insight — Information Delay</div>
+      <p>The model revealed that <strong>information delays are structurally central to climate system failure</strong>. There is a ~15–20 year lag between emission decisions and observable temperature impacts. By the time the consequences of today's emissions are felt, the atmospheric stock has already been locked in for decades. Faster monitoring (satellite + in-situ data integration into real-time dashboards) compresses this delay — which is why the "Policy + Monitoring" scenario outperforms "Strong Policy" alone even at the same emission reduction rate.</p>
+    </div>
+  </div>
+
+  <!-- ══ 03 DATA ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">03 — Data Sources</div>
+    <h2 class="cs-section-title">Grounding the Model<br/><em>in Real Data</em></h2>
+    <div class="cs-body">
+      <p>All model parameters were anchored to authoritative public datasets — not assumed. The U.S. emissions breakdown from EPA's Inventory shows the sector contributions that drive the emission flow variables in the model:</p>
+    </div>
+
+    <div class="sector-grid">
+      <div class="sector"><div class="sector-name">Transportation</div><div class="sector-pct">~28–30%</div></div>
+      <div class="sector"><div class="sector-name">Electric Power</div><div class="sector-pct">~24–25%</div></div>
+      <div class="sector"><div class="sector-name">Industry</div><div class="sector-pct">~23–30%</div></div>
+      <div class="sector"><div class="sector-name">Residential &amp; Commercial</div><div class="sector-pct">~13%</div></div>
+      <div class="sector"><div class="sector-name">Agriculture</div><div class="sector-pct">~10–11%</div></div>
+      <div class="sector"><div class="sector-name">Land Use Change</div><div class="sector-pct">Significant net source</div></div>
+    </div>
+
+    <div class="cs-body" style="margin-top:1rem">
+      <p>Additional data grounding: atmospheric CO₂ from <strong>NOAA Mauna Loa</strong> (426 ppm November 2025, seasonal peaks exceeding 430 ppm); global flood impact data from <strong>UNDRR</strong> (~2.3 billion people affected by floods since 1995, representing 35–40% of weather-related disasters); water scarcity from <strong>UNESCO WWDR 2024 and WRI Aqueduct</strong> (3.6–4+ billion facing at least one month of water scarcity per year); and the 2022 Pakistan monsoon floods as a real-world case study — analyzed via World Weather Attribution peer-reviewed studies showing climate-intensified extreme rainfall compounded by outdated river management infrastructure.</p>
+    </div>
+  </div>
+
+  <!-- ══ 04 SCENARIOS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">04 — Scenario Projections</div>
+    <h2 class="cs-section-title">Three Trajectories<br/><em>to 2050</em></h2>
+    <div class="cs-body">
+      <p>Using the stock-flow equations with NOAA/IPCC-calibrated parameters, we ran three projection scenarios from 2025 to 2050. Shaded uncertainty bands reflect sensitivity to airborne fraction (AF = 0.40–0.55) and climate sensitivity (λ = 0.6–1.0 °C per W/m²). All projections are <strong>CO₂-only radiative forcing estimates</strong> — real-world temperatures reflect additional forcings, internal variability, and ocean heat uptake, so full IPCC Earth System Models should be used for policy-grade decisions.</p>
+    </div>
+
+    <div class="scenario-grid">
+      <div class="scenario scenario-bau">
+        <div class="scenario-label">Business-as-Usual (+0.5%/yr emissions)</div>
+        <div class="scenario-metric">
+          <div class="scenario-key">CO₂ by 2050</div>
+          <div class="scenario-val">~470–485</div>
+          <div class="scenario-sub">ppm (AF-dependent)</div>
+        </div>
+        <div class="scenario-metric">
+          <div class="scenario-key">ΔT vs. Preindustrial</div>
+          <div class="scenario-val">~1.8–2.9°C</div>
+          <div class="scenario-sub">λ range 0.6–1.0</div>
+        </div>
+        <div class="scenario-metric">
+          <div class="scenario-key">Assumption</div>
+          <div class="scenario-sub" style="font-size:.82rem">Minimal new policy; slow clean tech diffusion; continued fossil fuel dependency</div>
+        </div>
+      </div>
+      <div class="scenario scenario-policy">
+        <div class="scenario-label">Strong Policy (−3%/yr emissions)</div>
+        <div class="scenario-metric">
+          <div class="scenario-key">CO₂ by 2050</div>
+          <div class="scenario-val">~450–460</div>
+          <div class="scenario-sub">ppm</div>
+        </div>
+        <div class="scenario-metric">
+          <div class="scenario-key">ΔT vs. Preindustrial</div>
+          <div class="scenario-val">~1.5–2.6°C</div>
+          <div class="scenario-sub">λ range 0.6–1.0</div>
+        </div>
+        <div class="scenario-metric">
+          <div class="scenario-key">Assumption</div>
+          <div class="scenario-sub" style="font-size:.82rem">Carbon pricing; renewables scaling; methane controls; 50–60% clean electricity by 2035</div>
+        </div>
+      </div>
+      <div class="scenario scenario-monitor">
+        <div class="scenario-label">Policy + Monitoring (−4%/yr emissions)</div>
+        <div class="scenario-metric">
+          <div class="scenario-key">CO₂ by 2050</div>
+          <div class="scenario-val">~445–455</div>
+          <div class="scenario-sub">ppm</div>
+        </div>
+        <div class="scenario-metric">
+          <div class="scenario-key">ΔT vs. Preindustrial</div>
+          <div class="scenario-val">~1.4–2.5°C</div>
+          <div class="scenario-sub">λ range 0.6–1.0</div>
+        </div>
+        <div class="scenario-metric">
+          <div class="scenario-key">Assumption</div>
+          <div class="scenario-sub" style="font-size:.82rem">Same as Strong Policy + real-time satellite monitoring → faster feedback → earlier action</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">Key Finding — The Value of Monitoring</div>
+      <p>The gap between Strong Policy and Policy + Monitoring scenarios (~5–10 ppm CO₂, ~0.1°C ΔT by 2050) is entirely driven by <strong>information delay compression</strong> — not by different emission reduction targets. Faster real-time climate data allows policymakers to detect threshold crossings earlier and activate balancing responses before reinforcing loops gain irreversible momentum. This quantifies the ROI of climate monitoring infrastructure investment.</p>
+    </div>
+  </div>
+
+  <!-- ══ 05 LEVERS ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">05 — Actionable Levers</div>
+    <h2 class="cs-section-title">Breaking the Loops —<br/><em>Workable Interventions</em></h2>
+    <div class="cs-body">
+      <p>The system model identified where in the causal structure interventions have the highest leverage — targeting the largest emission flows, the most dangerous reinforcing loops, and the most impactful information delays. Real-world implementation examples were drawn from Germany, Denmark, the Netherlands, Canada, and Norway:</p>
+    </div>
+
+    <div class="mitigation-row">
+      <div class="mit-icon">Energy</div>
+      <div class="mit-body">
+        <div class="mit-title">Electricity Decarbonization</div>
+        <div class="mit-detail">Accelerate clean generation to ≥50–60% by 2035 via renewables + storage + transmission. Retire unabated coal; expand demand-side flexibility. Germany's renewable transition avoided ~250–300 million tonnes CO₂/year; Denmark ~25–30 million tonnes/year.</div>
+      </div>
+    </div>
+    <div class="mitigation-row">
+      <div class="mit-icon">Transport</div>
+      <div class="mit-body">
+        <div class="mit-title">Zero-Emission Vehicle Transition</div>
+        <div class="mit-detail">Phase in ZEV mandates and charging infrastructure. Shift freight to rail; adopt low-carbon aviation fuels on critical routes. Tighten CH₄ leak detection and repair in oil &amp; gas supply chains (LDAR protocols).</div>
+      </div>
+    </div>
+    <div class="mitigation-row">
+      <div class="mit-icon">Methane</div>
+      <div class="mit-body">
+        <div class="mit-title">30% Methane Reduction by 2030</div>
+        <div class="mit-detail">Deliver ≥30% CH₄ reductions from oil &amp; gas, waste, and agriculture via LDAR, anaerobic digestion, and livestock feed additives. Methane's 20-year warming potential is ~80x CO₂ — highest near-term leverage point for slowing the permafrost loop.</div>
+      </div>
+    </div>
+    <div class="mitigation-row">
+      <div class="mit-icon">Land</div>
+      <div class="mit-body">
+        <div class="mit-title">End Net Deforestation by 2030</div>
+        <div class="mit-detail">Halt deforestation to preserve balancing loop B1 (natural sinks). Restore forests and soils; implement climate-smart agriculture (precision irrigation, drought-resilient crops). Protects ~500 GtC stored in terrestrial ecosystems from re-entering the emission flow.</div>
+      </div>
+    </div>
+    <div class="mitigation-row">
+      <div class="mit-icon">CCS</div>
+      <div class="mit-body">
+        <div class="mit-title">Carbon Capture &amp; Infrastructure</div>
+        <div class="mit-detail">Canada's Boundary Dam: captured 0.85 million tonnes CO₂/year. Norway's Longship Project: capturing 1.5 million tonnes CO₂/year. The Netherlands Delta Programme uses "Dike-ring areas" to maintain flood mortality at 1-in-100,000 per year through 2050 — a model for climate-resilient infrastructure design.</div>
+      </div>
+    </div>
+    <div class="mitigation-row">
+      <div class="mit-icon">Monitor</div>
+      <div class="mit-body">
+        <div class="mit-title">Real-Time Monitoring Integration</div>
+        <div class="mit-detail">Integrate satellite + in-situ observational data into real-time dashboards for floods, droughts, and heatwaves. This is the highest-leverage structural intervention because it compresses information delays — accelerating B2 (policy response loop) without requiring additional emission reductions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 06 CRITIQUE ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">06 — Model Critique</div>
+    <h2 class="cs-section-title">What Our Model Captures —<br/><em>and What It Misses</em></h2>
+    <div class="cs-body">
+      <p>We critically evaluated our Vensim model against the University of Chicago's interactive climate model suite (MODTRAN, RRTM, GEOCARB, SLUGULATOR, ISAM, GRANTISM, PERMAFROST) — web-based educational tools used widely for conceptual climate scenario exploration.</p>
+      <p><strong>Shared strengths with Chicago models:</strong> transparent assumptions, accessible scenario exploration, adjustable parameters, causal mechanism illustration. These tools are powerful for education and preliminary analysis. Our Vensim model adds stock-flow formalization, explicit feedback loop mapping, and quantitative scenario projections.</p>
+      <p><strong>Shared limitations:</strong> both approaches use simplified dynamics and partial feedback representation compared to full IPCC Earth System Models (ESMs) that integrate ocean-atmosphere-biosphere dynamics. Neither our model nor Chicago's tools ingest real-time observational datasets (NOAA, Copernicus), provide formal uncertainty quantification with confidence intervals, or model tipping point probability distributions.</p>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Appropriate Use</div>
+      <p>Both our model and the Chicago interactive tools are best used for <strong>conceptual insight, stakeholder communication, and preliminary scenario framing</strong> — not for policy-grade forecasting or investment-grade climate risk assessment. For those purposes, full ESMs with vetted NOAA/EPA/IPCC datasets and formal sensitivity analysis are required. This honest scoping is itself a systems thinking discipline: knowing your model's validity boundary.</p>
+    </div>
+  </div>
+
+  <!-- ══ 07 IMPACT ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">07 — Impact &amp; Applications</div>
+    <h2 class="cs-section-title">Results &amp;<br/><em>Real-World Relevance</em></h2>
+    <div class="outcomes">
+      <div class="outcome"><div class="out-num">3</div><div class="out-label">Scenario Trajectories Modeled to 2050</div></div>
+      <div class="outcome"><div class="out-num">4</div><div class="out-label">Feedback Loops Formalized</div></div>
+      <div class="outcome"><div class="out-num">426ppm</div><div class="out-label">Current CO₂ — Live NOAA Baseline</div></div>
+    </div>
+    <div class="cs-body" style="margin-top:1.5rem">
+      <p>The model's applications extend well beyond the classroom. The framework directly supports <strong>disaster preparedness</strong> (flood risk mapping for infrastructure and insurance), <strong>carbon management</strong> (quantifying the ROI of emission reduction policies), <strong>agricultural planning</strong> (scenario-based water resource management under each temperature trajectory), and <strong>policy analysis</strong> (centralized real-time data collection as a force multiplier for any emission reduction commitment).</p>
+      <p>The most practically important finding — that <em>monitoring investment has quantifiable emission-equivalent value</em> — is a systems insight that traditional cost-benefit analyses of climate policy routinely miss, because they model monitoring as an overhead cost rather than a feedback-loop intervention.</p>
+    </div>
+  </div>
+
+  <!-- ══ 08 TECH STACK ══ -->
+  <div class="cs-section">
+    <div class="cs-section-label">08 — Tech Stack &amp; Sources</div>
+    <h2 class="cs-section-title">Tools &amp; <em>Data Sources</em></h2>
+    <div class="tech-grid">
+      <span class="tech">Vensim PLE</span><span class="tech">Stock-Flow Modeling</span>
+      <span class="tech">Causal Loop Diagrams</span><span class="tech">Scenario Analysis</span>
+      <span class="tech">Sensitivity Analysis (AF, λ)</span><span class="tech">IPCC Radiative Forcing Eq.</span>
+      <span class="tech">NOAA Mauna Loa Data</span><span class="tech">EPA GHG Inventory</span>
+      <span class="tech">Global Carbon Budget</span><span class="tech">UNESCO WWDR 2024</span>
+      <span class="tech">WRI Aqueduct</span><span class="tech">World Weather Attribution</span>
+    </div>
+    <div style="margin-top:1.5rem;padding:1.25rem 1.5rem;background:rgba(255,248,240,0.02);border:1px solid var(--border-void);border-radius:4px">
+      <div style="font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dust-faint);margin-bottom:.75rem">Key References</div>
+      <div style="font-size:.84rem;font-weight:300;color:var(--dust);line-height:2">
+        NOAA Global Monitoring Laboratory — Trends in Atmospheric CO₂ (Mauna Loa) &nbsp;·&nbsp;
+        EPA Inventory of U.S. GHG Emissions and Sinks &nbsp;·&nbsp;
+        UNESCO WWDR 2024 &nbsp;·&nbsp;
+        WRI Aqueduct Water Stress Maps &nbsp;·&nbsp;
+        UNDRR/UNISDR — The Human Cost of Weather-Related Disasters (1995–2015) &nbsp;·&nbsp;
+        World Weather Attribution — 2022 Pakistan Floods &nbsp;·&nbsp;
+        University of Chicago Climate &amp; Carbon Cycle Models (MODTRAN, RRTM, ISAM) &nbsp;·&nbsp;
+        Global Carbon Budget 2024 &nbsp;·&nbsp;
+        IPCC — Myhre et al. radiative forcing formulation &nbsp;·&nbsp;
+        Rockström et al. planetary boundaries framework
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE NAV -->
+<div class="case-nav">
+  <a href="zara-logistics.html">← Zara NYC Optimization</a>
+  <span class="case-nav-center">Manish Kumar</span>
+  <a href="chopvalue.html">Next: ChopValue Go-to-Market →</a>
+</div>
+</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[];
+function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;stars=[];const n=Math.floor(W*H/3000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.15,o:Math.random()*.7+.1,sp:Math.random()*.4+.05,ph:Math.random()*Math.PI*2,t:Math.random()>.94?'p':Math.random()>.97?'g':'s'})}
+function tick(t){ctx.clearRect(0,0,W,H);stars.forEach(s=>{const tw=s.o*(.65+.35*Math.sin(t*.001*s.sp+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.t==='p'?`rgba(0,212,255,${tw*.7})`:s.t==='g'?`rgba(245,166,35,${tw*.9})`:`rgba(255,248,240,${tw})`;ctx.fill()});requestAnimationFrame(tick)}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})});
+</script>
+</body>
+</html>
