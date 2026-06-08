@@ -517,7 +517,7 @@ footer{
           </div>
           <div class="tl">
             <div class="tl-dot"></div>
-            <div class="tl-date">2024</div>
+            <div class="tl-date">2025</div>
             <div class="tl-role">Consulting Analyst — Babson Consulting Experience</div>
             <div class="tl-org">ChopValue Boston · Pricing strategy, elasticity modeling, 30-slide executive deck</div>
           </div>
@@ -807,14 +807,13 @@ footer{
 const c=document.getElementById('c'),ctx=c.getContext('2d');
 let W,H,stars=[],nebulae=[],voyPath=[];
 function resize(){
-  W=c.width=window.innerWidth;H=c.height=window.innerHeight;
-  c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;
-  ctx.scale(devicePixelRatio,devicePixelRatio);
+  W=window.innerWidth;H=window.innerHeight;
+  c.width=W;c.height=H;
   buildScene();
 }
 function buildScene(){
   stars=[];
-  const n=Math.floor(W*H/2800);
+  const n=Math.floor(W*H/2600);
   for(let i=0;i<n;i++)stars.push({
     x:Math.random()*W,y:Math.random()*H,
     r:Math.random()*1.4+0.2,
@@ -829,13 +828,7 @@ function buildScene(){
     {x:W*.5,y:H*.12,rx:W*.13,ry:H*.08,color:'rgba(160,40,80,',o:.05,angle:.1},
   ];
   voyPath=[];
-  const pts=10;
-  for(let i=0;i<pts;i++){
-    voyPath.push({
-      x:W*(0.02+i*(0.94/pts)),
-      y:H*(0.88-(i*(0.68/pts)))
-    });
-  }
+  for(let i=0;i<10;i++) voyPath.push({x:W*(0.02+i*(0.94/10)),y:H*(0.88-(i*(0.68/10)))});
 }
 function drawNebula(n){
   ctx.save();ctx.translate(n.x,n.y);ctx.rotate(n.angle);
@@ -850,10 +843,8 @@ function drawNebula(n){
 function drawBlackHole(){
   const x=W*.08,y=H*.18;
   for(let r=28;r>0;r-=3){
-    ctx.beginPath();
-    ctx.ellipse(x,y,r*2.5,r*.6,-.3,0,Math.PI*2);
-    ctx.strokeStyle=`rgba(245,166,35,${(28-r)/28*0.1})`;
-    ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(x,y,r*2.5,r*.6,-.3,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(245,166,35,${(28-r)/28*0.1})`;ctx.lineWidth=2;ctx.stroke();
   }
   const bg=ctx.createRadialGradient(x,y,0,x,y,18);
   bg.addColorStop(0,'rgba(0,0,0,1)');bg.addColorStop(.7,'rgba(0,0,0,.9)');bg.addColorStop(1,'rgba(0,0,0,0)');
@@ -866,10 +857,8 @@ function drawQuasar(t){
   ctx.save();ctx.translate(x,y);
   for(let s of[-1,1]){
     const jg=ctx.createLinearGradient(0,0,0,s*50);
-    jg.addColorStop(0,`rgba(0,212,255,${.15*pulse})`);
-    jg.addColorStop(1,'rgba(0,212,255,0)');
-    ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(0,s*50);ctx.lineTo(7,0);
-    ctx.fillStyle=jg;ctx.fill();
+    jg.addColorStop(0,`rgba(0,212,255,${.15*pulse})`);jg.addColorStop(1,'rgba(0,212,255,0)');
+    ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(0,s*50);ctx.lineTo(7,0);ctx.fillStyle=jg;ctx.fill();
   }
   const qg=ctx.createRadialGradient(0,0,0,0,0,11);
   qg.addColorStop(0,`rgba(180,220,255,${.65*pulse+.2})`);
@@ -923,7 +912,7 @@ function tick(t){
 }
 window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
 const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
-let mx=0,my=0,rx=0,ry=0;
+let mx=window.innerWidth/2,my=window.innerHeight/2,rx=mx,ry=my;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
 (function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
 document.querySelectorAll('a,.tech,.mchip,.pcard,.chip').forEach(el=>{
