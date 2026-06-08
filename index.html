@@ -512,7 +512,7 @@ footer{
             <div class="tl-dot"></div>
             <div class="tl-date">2024 – May 2026</div>
             <div class="tl-role">MBA — Business Analytics &amp; Machine Learning</div>
-            <div class="tl-org">Babson College, Needham, MA</div>
+            <div class="tl-org">Babson College, Boston, MA</div>
             <span class="tl-badge">STEM-designated · F-1 OPT eligible</span>
           </div>
           <div class="tl">
@@ -752,11 +752,46 @@ footer{
       <div class="cform">
         <div class="cform-title">Send a message</div>
         <div class="cform-sub">I'll get back to you within 24 hours.</div>
-        <div class="fg"><label class="flabel">Your name</label><input class="finput" type="text" placeholder="Jane Smith"/></div>
-        <div class="fg"><label class="flabel">Email address</label><input class="finput" type="email" placeholder="jane@company.com"/></div>
-        <div class="fg"><label class="flabel">Subject</label><input class="finput" type="text" placeholder="Opportunity · Collaboration · Question"/></div>
-        <div class="fg"><label class="flabel">Message</label><textarea class="ftarea" placeholder="Tell me what you're working on..."></textarea></div>
-        <button class="fsend">Send Message →</button>
+        <form id="contactForm" action="https://formspree.io/f/mzdqgpbz" method="POST" style="display:block">
+          <div class="fg"><label class="flabel">Your name</label><input class="finput" type="text" name="name" placeholder="Jane Smith" required/></div>
+          <div class="fg"><label class="flabel">Email address</label><input class="finput" type="email" name="email" placeholder="jane@company.com" required/></div>
+          <div class="fg"><label class="flabel">Subject</label><input class="finput" type="text" name="subject" placeholder="Opportunity · Collaboration · Question"/></div>
+          <div class="fg"><label class="flabel">Message</label><textarea class="ftarea" name="message" placeholder="Tell me what you're working on..." required></textarea></div>
+          <button type="submit" class="fsend" id="submitBtn">Send Message →</button>
+        </form>
+        <div id="formSuccess" style="display:none;margin-top:1rem;padding:1.25rem;background:rgba(168,213,162,0.08);border:1px solid rgba(168,213,162,0.25);border-radius:4px;font-family:var(--ff-mono);font-size:.74rem;letter-spacing:.08em;color:#a8d5a2;text-align:center;">
+          ✓ Message sent! I'll get back to you within 24 hours.
+        </div>
+        <script>
+        (function(){
+          var form = document.getElementById('contactForm');
+          if(!form) return;
+          form.addEventListener('submit', async function(e){
+            e.preventDefault();
+            var btn = document.getElementById('submitBtn');
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+            try {
+              var res = await fetch('https://formspree.io/f/mzdqgpbz',{
+                method:'POST',
+                body: new FormData(form),
+                headers:{'Accept':'application/json'}
+              });
+              if(res.ok){
+                form.style.display='none';
+                document.getElementById('formSuccess').style.display='block';
+              } else {
+                btn.textContent='Send Message →';
+                btn.disabled=false;
+                alert('Something went wrong. Please email manishkr2106@gmail.com directly.');
+              }
+            } catch(err){
+              btn.textContent='Send Message →';
+              btn.disabled=false;
+            }
+          });
+        })();
+        </script>
       </div>
     </div>
   </div>
@@ -765,109 +800,136 @@ footer{
 <footer>
   <div class="f-name">Manish Kumar</div>
   <div class="f-mission pulse-anim">Kardashev Type II · In Progress</div>
-  <div class="f-copy">© 2026 · Needham, MA</div>
+  <div class="f-copy">© 2026 · Boston, MA</div>
 </footer>
 
 <script>
-// ── STARFIELD ──
-const canvas = document.getElementById('starfield');
-const ctx = canvas.getContext('2d');
-let W, H, stars = [];
-
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  buildStars();
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let W,H,stars=[],nebulae=[],voyPath=[];
+function resize(){
+  W=c.width=window.innerWidth;H=c.height=window.innerHeight;
+  c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  buildScene();
 }
-
-function buildStars() {
-  stars = [];
-  const n = Math.floor((W * H) / 2800);
-  for (let i = 0; i < n; i++) {
-    stars.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.3 + 0.15,
-      o: Math.random() * 0.75 + 0.1,
-      sp: Math.random() * 0.4 + 0.05,
-      ph: Math.random() * Math.PI * 2,
-      type: Math.random() > 0.93 ? 'plasma' : Math.random() > 0.97 ? 'corona' : 'star'
+function buildScene(){
+  stars=[];
+  const n=Math.floor(W*H/2800);
+  for(let i=0;i<n;i++)stars.push({
+    x:Math.random()*W,y:Math.random()*H,
+    r:Math.random()*1.4+0.2,
+    o:Math.random()*.8+.15,
+    sp:Math.random()*.5+.05,
+    ph:Math.random()*Math.PI*2,
+    type:Math.random()>.93?'plasma':Math.random()>.97?'corona':'star'
+  });
+  nebulae=[
+    {x:W*.12,y:H*.28,rx:W*.1,ry:H*.12,color:'rgba(80,20,160,',o:.07,angle:-.3},
+    {x:W*.75,y:H*.65,rx:W*.09,ry:H*.1,color:'rgba(0,80,160,',o:.06,angle:.4},
+    {x:W*.5,y:H*.12,rx:W*.13,ry:H*.08,color:'rgba(160,40,80,',o:.05,angle:.1},
+  ];
+  voyPath=[];
+  const pts=10;
+  for(let i=0;i<pts;i++){
+    voyPath.push({
+      x:W*(0.02+i*(0.94/pts)),
+      y:H*(0.88-(i*(0.68/pts)))
     });
   }
 }
-
-function tick(t) {
-  ctx.clearRect(0, 0, W, H);
-  stars.forEach(s => {
-    const tw = s.o * (0.65 + 0.35 * Math.sin(t * 0.001 * s.sp + s.ph));
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    if (s.type === 'plasma') ctx.fillStyle = `rgba(0,212,255,${tw * 0.7})`;
-    else if (s.type === 'corona') ctx.fillStyle = `rgba(245,166,35,${tw * 0.9})`;
-    else ctx.fillStyle = `rgba(255,248,240,${tw})`;
-    ctx.fill();
-  });
-  requestAnimationFrame(tick);
+function drawNebula(n){
+  ctx.save();ctx.translate(n.x,n.y);ctx.rotate(n.angle);
+  const g=ctx.createRadialGradient(0,0,0,0,0,n.rx);
+  g.addColorStop(0,n.color+n.o*2+')');
+  g.addColorStop(.5,n.color+n.o+')');
+  g.addColorStop(1,n.color+'0)');
+  ctx.scale(1,n.ry/n.rx);
+  ctx.beginPath();ctx.arc(0,0,n.rx,0,Math.PI*2);
+  ctx.fillStyle=g;ctx.fill();ctx.restore();
 }
-
-window.addEventListener('resize', resize);
-resize();
-requestAnimationFrame(tick);
-
-// ── CURSOR ──
-const cur = document.getElementById('cur');
-const ring = document.getElementById('curRing');
-let mx = 0, my = 0, rx = 0, ry = 0;
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-});
-
-(function animRing() {
-  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
-  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-  requestAnimationFrame(animRing);
-})();
-
-document.querySelectorAll('a, button, .pcard, .chip, .cert').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    cur.style.width = '14px'; cur.style.height = '14px';
-    ring.style.width = '50px'; ring.style.height = '50px';
-    ring.style.borderColor = 'rgba(245,166,35,0.7)';
-  });
-  el.addEventListener('mouseleave', () => {
-    cur.style.width = '8px'; cur.style.height = '8px';
-    ring.style.width = '32px'; ring.style.height = '32px';
-    ring.style.borderColor = 'rgba(245,166,35,0.4)';
-  });
-});
-
-// ── SCROLL REVEAL ──
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.opacity = '1';
-      e.target.style.transform = 'translateY(0)';
-      // animate skill bars
-      e.target.querySelectorAll && e.target.querySelectorAll('.sk-fill').forEach(bar => {
-        bar.style.transition = 'transform 1.1s cubic-bezier(.4,0,.2,1)';
-        bar.style.transform = `scaleX(${bar.dataset.w})`;
-      });
-      io.unobserve(e.target);
+function drawBlackHole(){
+  const x=W*.08,y=H*.18;
+  for(let r=28;r>0;r-=3){
+    ctx.beginPath();
+    ctx.ellipse(x,y,r*2.5,r*.6,-.3,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(245,166,35,${(28-r)/28*0.1})`;
+    ctx.lineWidth=2;ctx.stroke();
+  }
+  const bg=ctx.createRadialGradient(x,y,0,x,y,18);
+  bg.addColorStop(0,'rgba(0,0,0,1)');bg.addColorStop(.7,'rgba(0,0,0,.9)');bg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath();ctx.arc(x,y,18,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
+  ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);
+  ctx.strokeStyle='rgba(245,166,35,0.2)';ctx.lineWidth=1.5;ctx.stroke();
+}
+function drawQuasar(t){
+  const x=W*.88,y=H*.1,pulse=.5+.5*Math.sin(t*.002);
+  ctx.save();ctx.translate(x,y);
+  for(let s of[-1,1]){
+    const jg=ctx.createLinearGradient(0,0,0,s*50);
+    jg.addColorStop(0,`rgba(0,212,255,${.15*pulse})`);
+    jg.addColorStop(1,'rgba(0,212,255,0)');
+    ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(0,s*50);ctx.lineTo(7,0);
+    ctx.fillStyle=jg;ctx.fill();
+  }
+  const qg=ctx.createRadialGradient(0,0,0,0,0,11);
+  qg.addColorStop(0,`rgba(180,220,255,${.65*pulse+.2})`);
+  qg.addColorStop(.4,`rgba(0,150,255,${.28*pulse})`);
+  qg.addColorStop(1,'rgba(0,100,255,0)');
+  ctx.beginPath();ctx.arc(0,0,11,0,Math.PI*2);ctx.fillStyle=qg;ctx.fill();
+  ctx.restore();
+}
+function drawVoyager(t){
+  ctx.beginPath();ctx.moveTo(voyPath[0].x,voyPath[0].y);
+  for(let i=1;i<voyPath.length;i++){
+    const p=voyPath[i-1],n=voyPath[i],cpx=(p.x+n.x)/2,cpy=(p.y+n.y)/2;
+    ctx.quadraticCurveTo(p.x,p.y,cpx,cpy);
+  }
+  ctx.strokeStyle='rgba(255,248,240,0.05)';ctx.lineWidth=1;
+  ctx.setLineDash([3,7]);ctx.stroke();ctx.setLineDash([]);
+  const prog=((t*.00007)%1);
+  const idx=Math.floor(prog*(voyPath.length-1));
+  const frac=(prog*(voyPath.length-1))-idx;
+  const p1=voyPath[Math.min(idx,voyPath.length-1)];
+  const p2=voyPath[Math.min(idx+1,voyPath.length-1)];
+  const vx=p1.x+(p2.x-p1.x)*frac,vy=p1.y+(p2.y-p1.y)*frac;
+  const angle=Math.atan2(p2.y-p1.y,p2.x-p1.x);
+  ctx.save();ctx.translate(vx,vy);ctx.rotate(angle);
+  ctx.fillStyle='rgba(220,230,255,0.7)';ctx.fillRect(-5,-3,10,6);
+  ctx.beginPath();ctx.arc(0,-3,5,Math.PI,0);
+  ctx.strokeStyle='rgba(200,220,255,0.55)';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='rgba(100,160,255,0.45)';
+  ctx.fillRect(-14,-1.5,8,3);ctx.fillRect(6,-1.5,8,3);
+  ctx.restore();
+}
+function tick(t){
+  ctx.clearRect(0,0,W,H);
+  nebulae.forEach(drawNebula);
+  drawBlackHole();drawQuasar(t);
+  stars.forEach(s=>{
+    const tw=s.o*(.6+.4*Math.sin(t*.001*s.sp+s.ph));
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    if(s.type==='plasma')ctx.fillStyle=`rgba(0,212,255,${tw*.65})`;
+    else if(s.type==='corona')ctx.fillStyle=`rgba(245,166,35,${tw*.85})`;
+    else ctx.fillStyle=`rgba(255,248,240,${tw})`;
+    ctx.fill();
+    if(s.r>1.1&&tw>.6){
+      ctx.strokeStyle=`rgba(255,255,255,${tw*.18})`;ctx.lineWidth=.5;
+      ctx.beginPath();ctx.moveTo(s.x-s.r*3,s.y);ctx.lineTo(s.x+s.r*3,s.y);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(s.x,s.y-s.r*3);ctx.lineTo(s.x,s.y+s.r*3);ctx.stroke();
     }
   });
-}, { threshold: 0.12 });
-
-document.querySelectorAll('.pcard, .tl, .cert, .stat, .hero-panel, .about-text, .philosophy').forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(18px)';
-  el.style.transition = 'opacity 0.65s ease, transform 0.65s ease';
-  io.observe(el);
+  drawVoyager(t);
+  requestAnimationFrame(tick);
+}
+window.addEventListener('resize',resize);resize();requestAnimationFrame(tick);
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar)})();
+document.querySelectorAll('a,.tech,.mchip,.pcard,.chip').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(245,166,35,0.7)'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(245,166,35,0.4)'})
 });
-
-// skill bars on section visible
-document.querySelectorAll('#skills').forEach(el => io.observe(el));
 </script>
 </body>
 </html>
